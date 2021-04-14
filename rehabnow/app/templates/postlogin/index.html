@@ -1,0 +1,32 @@
+{% extends "postlogin/base/base.html" %}
+{% block main_content %}
+<div>
+    <table class="table table-responsive table-striped table-hover d-md-table">
+        <tr>
+            <th>No.</th>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Gender</th>
+            <th>Phone Number</th>
+            <th>DOB</th>
+            <th>Nationality</th>
+            <th>Address</th>
+            <th>Actions</th>
+        </tr>
+        {% for user in users %}
+        <tr>
+            <td>{{forloop.counter}}</td>
+            <td>{{user.id}}</td>
+            <td>{{user.first_name}} {{user.last_name}}</td>
+            <td>{{user.gender}}</td>
+            <td>{{user.phone_num}}</td>
+            <td>{{user.dob}}</td>
+            <td>{{user.nationality}}</td>
+            <td>{{user.address}}</td>
+            <td>Actions</td>
+        </tr>
+        {% endfor %}
+    </table>
+    {{users}}
+</div>
+{% endblock %}

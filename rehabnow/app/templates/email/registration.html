@@ -1,0 +1,21 @@
+<html>
+
+<body>
+    <img src="http://localhost:8000/static/images/logo.svg" />
+    <p>Hi, welcome to RehabNow.</p>
+    <br />
+    <p>We've just made your account - welcome aboard.</p>
+    <p>To continue using our platform, please verify your email address by clicking the link:
+        <a href="http://{{domain}}{% url 'activate' uidb64=uid token=token %}">
+            http://{{domain}}{% url 'activate' uidb64=uid token=token %}</a>
+    </p>
+
+    <p>If you think this is a mistake, kindly ignore this email.</p>
+
+    <br />
+    <p>Thank you.</p>
+    <br />
+    <pre>The RehabNow Team</pre>
+</body>
+
+</html>

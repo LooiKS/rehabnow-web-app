@@ -1,0 +1,60 @@
+{% extends "prelogin/base.html" %}
+{% block title %}Login{% endblock %}
+{% block main_content %}
+<h3 class="text-center font-weight-bold">RehabNow Physiotherapist Portal</h3>
+<div class="alert-danger">
+    <p>{{error}}</p>
+</div>
+<form action="" method="POST">
+    {% csrf_token %}
+    <div class="card-body">
+        <div class="input-group mb-3">
+            <div class="input-group-prepend">
+                <div class="input-group-text"><i class="fa fa-envelope"></i></div>
+            </div>
+            <input id="email" class="form-control form-control-lg" type="text" placeholder="Email" name="email"
+                value="{{email}}" required />
+        </div>
+        <div class="input-group my-3">
+            <div class="input-group-prepend">
+                <div class="input-group-text"><i class="fa fa-lock"></i></div>
+            </div>
+            <input id="password" class="form-control form-control-lg" type="password" placeholder="Password"
+                name="password" required style="border-right: 0;" />
+            <div class="input-group-append">
+                <div class="input-group-text" style="border-left: 0;background-color: white;padding: 0;">
+                    <button id="password-toggler" class="shadow-none btn" type="button">
+                        <i id="password-toggler-i" class="fa fa-eye"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="text-center">
+        <button class="btn btn-primary">Login</button>
+    </div>
+</form>
+<hr />
+<div class="text-center">
+    <p><a href="forgot-password"><strong>Forgot Password</strong></a></p>
+    <p><strong>Have no account? Sign up <a href="register">Here</a>!</strong></p>
+</div>
+<script>
+    (function () {
+        document.getElementById('password-toggler').addEventListener('click', () => {
+            var passwordElem = document.getElementById('password');
+            var passwordTogglerIElem = document.getElementById('password-toggler-i');
+            if (passwordElem.type === 'password') {
+                passwordElem.type = 'text';
+                passwordTogglerIElem.classList.add('fa-eye-slash');
+                passwordTogglerIElem.classList.remove('fa-eye');
+            }
+            else {
+                passwordElem.type = 'password';
+                passwordTogglerIElem.classList.add('fa-eye');
+                passwordTogglerIElem.classList.remove('fa-eye-slash');
+            }
+        });
+    })();
+</script>
+{% endblock %}

@@ -1,0 +1,57 @@
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% load static %}
+    <link href="{% static 'images/favicon.svg' %}" rel="icon">
+    <link href="{% static 'bootstrap\css\bootstrap.min.css' %}" rel="stylesheet">
+    <link href="{% static 'fontawesome\css\all.min.css' %}" rel="stylesheet">
+    <link href="{% static 'style.css' %}" rel="stylesheet">
+    <script src="{% static 'jquery/jquery.min.js' %}"></script>
+    <script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
+    <title>{% block title %}Home Page{% endblock %} | RehabNow</title>
+</head>
+
+<body style="background-color: rgba(0,0,0,.03);">
+    <header class="navbar navbar-expand-lg bd-navbar header shadow-sm">
+        <div class="logo-wrapper border-right">
+            <img src="{% static 'images/logo.svg'%}" alt="logo">
+            <button class="ml-3 shadow-none btn" onclick="toggleSidebar()">
+                <i class="fa fa-bars align-middle"></i>
+            </button>
+        </div>
+        <div class="mx-3 d-md-block d-none">
+            <h6 class="m-0">
+                <strong>Welcome John Doe 001. Your last login is on 31/03/2021 1:39 PM</strong>
+            </h6>
+        </div>
+    </header>
+    <div class="">
+        <div class="nav flex-column bg-blue sidebar shadow" id="sidebar">
+            <a class="nav-link py-3" href="#"><i class="fa fa-medkit mr-3"></i>Patients</a>
+            <a class="nav-link py-3" href="profile"><i class="fa fa-user mr-3"></i>Profile</a>
+            <a class="nav-link py-3" href="logout"><i class="fa fa-sign-out-alt mr-3"></i>Logout</a>
+        </div>
+        <div class="p-3" id="main-content">
+            {% block main_content %}
+            {% endblock %}
+        </div>
+    </div>
+</body>
+
+<script>
+    function toggleSidebar() {
+        var sidebar = document.getElementById('sidebar');
+        if (window.innerWidth >= 576) {
+            sidebar.classList.remove('sidebar-toggled-mobile')
+            sidebar.classList.toggle('sidebar-toggled-desktop')
+        } else {
+            sidebar.classList.remove('sidebar-toggled-desktop')
+            sidebar.classList.toggle('sidebar-toggled-mobile')
+        }
+    }
+</script>
+{% block script %}
+{% endblock %}
+
+</html>

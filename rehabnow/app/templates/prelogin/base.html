@@ -1,0 +1,28 @@
+{% load static %}
+
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="{% static 'images/favicon.svg' %}" rel="icon">
+    <link href="{% static 'bootstrap\css\bootstrap.min.css' %}" rel="stylesheet">
+    <link href="{% static 'fontawesome\css\all.min.css' %}" rel="stylesheet">
+    <link href="{% static 'style.css' %}" rel="stylesheet">
+    <title>{% block title %}Home Page{% endblock %} | RehabNow</title>
+</head>
+
+<body>
+    <div class="login-bg-backdrop"></div>
+    <div class="login-div">
+        <div class="container m-auto">
+            <div class="row m-auto">
+                <div class="login-wrapper col-md-6 col-lg-5 m-auto">
+                    {% block main_content %}
+                    {% endblock %}
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
