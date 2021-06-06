@@ -1,0 +1,316 @@
+{% extends "postlogin/patients/view-patient.html" %}
+{% load static %}
+{% block title %}Cases{% endblock %}
+{% block case_content %}
+<div class="card mt-3">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-lg-6">
+                <h5 class="font-weight-bold">{{cardTitle}}</h5>
+            </div>
+        </div>
+        <form action="" method="POST" id="add-case-form" novalidate>
+            {% csrf_token %}
+            <input type="text" name="part-TOTAL_FORMS" value="{{forms|length}}" hidden />
+            <input type="text" name="target-TOTAL_FORMS" value="{{forms|length}}" hidden />
+            <input type="text" name="part-INITIAL_FORMS" value="{{forms|length}}" hidden />
+            <input type="text" name="target-INITIAL_FORMS" value="{{forms|length}}" hidden />
+            <div class="row">
+                <div class="col-lg-4">
+                    <div class="row form-group">
+                        <div class="col-md-4 col-form-label">
+                            <strong class="required-ast">Name</strong>
+                        </div>
+                        <div class="col-md-8">
+                            <input class="form-control" required type="text" id="case-name" name="case-name" placeholder="Please enter case name" value="{{case_form.name.value}}" />
+                            <p class="invalid-feedback">Case name is required</p>
+                            {% for error in form.email.errors %}
+                            <div class="text-danger">{{error}}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <div class="col-md-4 col-form-label">
+                            <strong class="required-ast">Description</strong>
+                        </div>
+                        <div class="col-md-8">
+                            <textarea class="form-control" required type="text" id="case-description" name="case-description" placeholder="Please enter case description" rows="5">{{case_form.description.value}}</textarea>
+                            <p class="invalid-feedback">Case description is required</p>
+                            {% for error in form.email.errors %}
+                            <div class="text-danger">{{error}}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <div class="col-md-4 col-form-label">
+                            <strong>Recovered on</strong>
+                        </div>
+                        <div class="col-md-8">
+                            <input class="form-control" type="date" id="case-recovered-dt" name="case-recovered_dt" value="{{case_form.recovered_dt.value}}" />
+                            {% for error in form.email.errors %}
+                            <div class="text-danger">{{error}}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <div class="col-md-4 col-form-label">
+                            <strong class="required-ast">Status</strong>
+                        </div>
+                        <div class="col-md-8">
+                            <select class="form-control" id="case-status" name="case-status" required>
+                                <option value="" disabled {% if None == case_form.status.value %}selected{% endif %}>Please choose a status</option>
+                                {% for value, text in case_form.status.field.choices %}
+                                <option value="{{value}}" {% if value == case_form.status.value %}selected{% endif %}>{{text}}</option>
+                                {% endfor %}
+                            </select>
+                            <p class="invalid-feedback">Case status is required</p>
+                            {% for error in form.email.errors %}
+                            <div class="text-danger">{{error}}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <!-- <div class="row form-group">
+                        <div class="col-md-4 col-form-label">
+                            <strong>Created on</strong>
+                        </div>
+                        <div class="col-md-8">
+                            <input class="form-control" required type="datetime" id="case-created_dt" name="case-created_dt" value="{{case_form.created_dt.value}}" readonly />
+                            {% for error in form.email.errors %}
+                            <div class="text-danger">{{error}}</div>
+                            {% endfor %}
+                        </div>
+                    </div> -->
+
+                </div>
+                <div class="col-lg-8">
+
+                    <div class="row mb-3">
+                        <div class="col-lg-6">
+                            <h6 class="font-weight-bold mb-3">Body Parts</h6>
+                        </div>
+                        <div class="col-lg-6 text-lg-right">
+                            <button class="btn btn-outline-primary" id="add-new-part-btn" type="button">
+                                <i class="fa fa-plus"></i>
+                                Add new part
+                            </button>
+                        </div>
+                    </div>
+                    {% for form, tForm in forms %}
+                    <div class="d-none">
+                        {{form.DELETE}}
+                        {{tForm.DELETE}}
+                    </div>
+                    {% for hidden in form.hidden_fields %}{{hidden}}{% endfor %}
+                    {% for hidden in tForm.hidden_fields %}{{hidden}}{% endfor %}
+                    {% endfor %}
+                    <div class="accordion" id="accordionExample">
+                        {% for form, tForm in forms %}
+                        <div class="card border-bottom">
+                            <div class="card-header" id="accordion-heading-{{forloop.counter}}">
+                                <h2 class="mb-0">
+                                    <button class="btn btn-block shadow-none text-left" type="button" data-toggle="collapse" data-target="#collapse-{{forloop.counter0}}" aria-expanded="false" aria-controls="collapse-{{forloop.counter0}}">
+                                        Body Part #{{forloop.counter}}
+                                    </button>
+                                </h2>
+                            </div>
+
+                            <div id="collapse-{{forloop.counter0}}" class="collapse" aria-labelledby="accordion-heading-{{forloop.counter}}" data-parent="#accordionExample">
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-lg-6">
+                                            <div class="row form-group">
+                                                <div class="col-md-4 col-form-label">
+                                                    <strong class="required-ast">Name</strong>
+                                                </div>
+                                                <div class="col-md-8">
+                                                    <select class="form-control" required id="{{form.name.id_for_label}}" name="{{form.name.html_name}}">
+                                                        <option value="" disabled {% if None == form.name.value %}selected{% endif %}>Please choose a part</option>
+                                                        {% for value, text in form.name.field.choices %}
+                                                        <option value="{{value}}" {% if value == form.name.value %}selected{% endif %}>{{text}}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                    <p class="invalid-feedback">Body part name is required</p>
+                                                    {% for error in form.name.errors %}
+                                                    <div class="text-danger">{{error}}</div>
+                                                    {% endfor %}
+                                                </div>
+                                            </div>
+                                            <div class="row form-group">
+                                                <div class="col-md-4 col-form-label">
+                                                    <strong class="required-ast">Description</strong>
+                                                </div>
+                                                <div class="col-md-8">
+                                                    <textarea class="form-control" required id="{{form.description.id_for_label}}" name="{{form.description.html_name}}" placeholder="Please enter part description">{{form.description.value}}</textarea>
+                                                    <p class="invalid-feedback">Body part description is required</p>
+                                                    {% for error in form.description.errors %}
+                                                    <div class="text-danger">{{error}}</div>
+                                                    {% endfor %}
+                                                </div>
+                                            </div>
+                                            <div class="row form-group">
+                                                <div class="col-md-4 col-form-label">
+                                                    <strong>Recovered on</strong>
+                                                </div>
+                                                <div class="col-md-8">
+                                                    <input class="form-control" type="date" id="{{form.recovered.id_for_label}}-dt" name="{{form.recovered_dt.html_name}}" value="{{form.recovered_dt.value}}" />
+                                                    {% for error in form.recovered_dt.errors %}
+                                                    <div class="text-danger">{{error}}</div>
+                                                    {% endfor %}
+                                                </div>
+                                            </div>
+                                            <div class="row form-group">
+                                                <div class="col-md-4 col-form-label">
+                                                    <strong class="required-ast">Status</strong>
+                                                </div>
+                                                <div class="col-md-8">
+                                                    <select class="form-control" required id="{{form.status.id_for_label}}" name="{{form.status.html_name}}">
+                                                        <option value="" disabled {% if None == form.status.value %}selected{% endif %}>Please choose status</option>
+                                                        {% for value, text in form.status.field.choices %}
+                                                        <option value="{{value}}" {% if value == form.status.value %}selected{% endif %}>{{text}}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                    <p class="invalid-feedback">Body part status is required</p>
+                                                    {% for error in form.status.errors %}
+                                                    <div class="text-danger">{{error}}</div>
+                                                    {% endfor %}
+                                                </div>
+                                            </div>
+                                            <!-- <div class="row form-group">
+                                                <div class="col-md-4 col-form-label">
+                                                    <strong>Created on</strong>
+                                                </div>
+                                                <div class="col-md-8">
+                                                    <input class="form-control" required type="datetime" id="{{form.created.id_for_label}}-dt" name="{{form.created_dt.html_name}}" value="{{form.created_dt.value}}" readonly />
+                                                    {% for error in form.created_dt.errors %}
+                                                    <div class="text-danger">{{error}}</div>
+                                                    {% endfor %}
+                                                </div>
+                                            </div> -->
+
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <div class="col-lg-41">
+                                                <h6 class="font-weight-bold">Target</h6>
+                                                <hr />
+                                                <div class="row form-group">
+                                                    <div class="col-md-4 col-form-label">
+                                                        <strong class="required-ast">Frequency</strong>
+                                                    </div>
+                                                    <div class="col-md-8">
+                                                        <select class="form-control" required id="{{tForm.frequency.id_for_label}}" name="{{tForm.frequency.html_name}}">
+                                                            <option value="" disabled {% if None == tForm.frequency.value %}selected{% endif %}>Please choose a frequency</option>
+                                                            {% for value, text in tForm.frequency.field.choices %}
+                                                            <option value="{{value}}" {% if value|stringformat:'s' == tForm.frequency.value %}selected{% endif %}>{{text}}</option>
+                                                            {% endfor %}
+                                                        </select>
+                                                        <p class="invalid-feedback">Frequency is required</p>
+                                                        {% for error in tForm.frequency.errors %}
+                                                        <div class="text-danger">{{error}}</div>
+                                                        {% endfor %}
+                                                    </div>
+                                                </div>
+                                                <div class="row form-group">
+                                                    <div class="col-md-4 col-form-label">
+                                                        <strong class="required-ast">Oscillation</strong>
+                                                    </div>
+                                                    <div class="col-md-8">
+                                                        <input class="form-control" required type="number" id="{{tForm.oscillation_num.id_for_label}}" name="{{tForm.oscillation_num.html_name}}" placeholder="Please enter oscillation" value="{{tForm.oscillation_num.value}}" />
+                                                        <p class="invalid-feedback">Oscillation is required</p>
+                                                        {% for error in tForm.oscillation_num.errors %}
+                                                        <div class="text-danger">{{error}}</div>
+                                                        {% endfor %}
+                                                    </div>
+                                                </div>
+                                                <div class="row form-group">
+                                                    <div class="col-md-4 col-form-label">
+                                                        <strong class="required-ast">Time Allocated (s)</strong>
+                                                    </div>
+                                                    <div class="col-md-8">
+                                                        <input class="form-control" required type="number" id="{{tForm.time.id_for_label}}-taken" name="{{tForm.time_taken.html_name}}" placeholder="Please enter time allocated" value="{{tForm.time_taken.value}}" />
+                                                        <p class="invalid-feedback">Time allocated is required</p>
+                                                        {% for error in tForm.time_taken.errors %}
+                                                        <div class="text-danger">{{error}}</div>
+                                                        {% endfor %}
+                                                    </div>
+                                                </div>
+                                                <div class="text-center"><button class="btn btn-danger mt-3 remove-part-btn {% if forloop.counter0 == 0 %}d-none{% endif %}" type="button" data-target="#{{form.DELETE.id_for_label}}">Remove</button></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <div class="text-center mt-3">
+                <button class="btn btn-outline-primary" id="add-case-form-submit-btn" type="button">Save</button>
+                <button class="btn btn-outline-warning" type="button">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    $("#add-new-part-btn").click((e) => {
+        console.log(e);
+        var accordionExample = document.getElementById("accordionExample");
+        var tpl = accordionExample.children[0].innerHTML;
+        var node = document.createElement("div");
+        node.classList.add("card");
+        var input = $("input[name='part-TOTAL_FORMS']");
+        var num = parseInt(input.val());
+        console.log(num);
+        tpl = tpl.replaceAll("part-0", `part-${num}`)
+        tpl = tpl.replaceAll("target-0", `target-${num}`)
+        tpl = tpl.replaceAll("accordion-heading-0", `accordion-heading-${num}`)
+        tpl = tpl.replaceAll("collapse-0", `collapse-${num}`)
+        tpl = tpl.replaceAll("Body Part #1", `Body Part #${parseInt(num) + 1}`)
+        node.innerHTML = tpl;
+        input.val(num + 1);
+        $("input[name='target-TOTAL_FORMS']").val(num + 1);
+        $(node).find(":input").val("")
+        $(node).find(`.remove-part-btn`).removeClass("d-none")
+        accordionExample.appendChild(node);
+        registerRemovePartBtn();
+    });
+    var removed = [];
+    var mode = '{{cardTitle}}'.toLowerCase().indexOf('edit') == -1 ? 'add' : 'edit';
+    registerRemovePartBtn();
+
+    function registerRemovePartBtn() {
+        $('.remove-part-btn').click((e) => {
+            var btn = e.target;
+            var part = $(btn).attr("data-target");
+            var target = part.replace("part", "target")
+            $(part).attr("checked", "on")
+            $(target).attr("checked", "on")
+            $(btn).closest(".card").remove()
+        });
+    }
+
+    $('#add-case-form-submit-btn').click((e) => {
+        var form = $('#add-case-form');
+        form.addClass('was-validated');
+        if (form[0].checkValidity()) {
+            var text = mode == 'add' ? "Are you sure to add new case?" : "Are you sure to edit this case?";
+            Swal.fire({
+                title: `Confirmation to ${mode} case`,
+                text: text,
+                icon: 'question',
+                showCancelButton: true
+            }).then(({ isConfirmed }) => {
+                if (isConfirmed) {
+                    removed.forEach((r) => {
+                        [a, b, c] = r.split("-")
+                        form.append(`<input hidden name='part-${b}-DELETE' checked type='checkbox'/>`)
+                        form.append(`<input hidden name='target-${b}-DELETE' checked type='checkbox'/>`)
+                    })
+                    form.submit();
+                }
+            })
+        }
+    })
+</script>
+{% endblock %}

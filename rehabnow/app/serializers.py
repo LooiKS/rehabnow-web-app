@@ -7,6 +7,7 @@
 #         model = User1
 #         fields = ["username"]
 
+from rehabnow.app.models import City, Country, State
 from rest_framework import serializers
 from rehabnow.app.models import Snippet, LANGUAGE_CHOICES, STYLE_CHOICES
 
@@ -55,3 +56,22 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ["id", "username", "snippets"]
+
+
+# SERIALIZER FOR API
+class ApiCountrySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Country
+        fields = ["country", "nationality", "iso2"]
+
+
+class ApiCitySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = City
+        fields = "__all__"
+
+
+class ApiStateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = State
+        fields = ["iso2", "state", "id"]

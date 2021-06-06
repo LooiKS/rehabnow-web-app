@@ -64,7 +64,7 @@ body {
 }
 
 .sidebar a:hover {
-  background-color: rgb(170 151 255);
+  background-color: rgb(0 150 255);
 }
 
 .header {
@@ -82,7 +82,7 @@ body {
   overflow: hidden;
 }
 
-@media (max-width: 575.98px) {
+@media (max-width: 767.98px) {
   .sidebar {
     margin-left: -250px;
   }
@@ -163,4 +163,9 @@ body {
 
 .edit-profile-overlay:hover > .edit-photo-content {
   display: block !important;
+}
+
+.required-ast:after {
+  content: "*";
+  color: red;
 }

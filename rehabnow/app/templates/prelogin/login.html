@@ -36,8 +36,8 @@
 </form>
 <hr />
 <div class="text-center">
-    <p><a href="forgot-password"><strong>Forgot Password</strong></a></p>
-    <p><strong>Have no account? Sign up <a href="register">Here</a>!</strong></p>
+    <p><a href="{% url 'forgot-password' %}"><strong>Forgot Password</strong></a></p>
+    <p><strong>Have no account? Sign up <a href="{% url 'register' %}">Here</a>!</strong></p>
 </div>
 <script>
     (function () {

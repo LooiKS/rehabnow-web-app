@@ -1,32 +1,180 @@
 {% extends "postlogin/base/base.html" %}
 {% block main_content %}
 <div>
-    <table class="table table-responsive table-striped table-hover d-md-table">
-        <tr>
-            <th>No.</th>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Gender</th>
-            <th>Phone Number</th>
-            <th>DOB</th>
-            <th>Nationality</th>
-            <th>Address</th>
-            <th>Actions</th>
-        </tr>
-        {% for user in users %}
-        <tr>
-            <td>{{forloop.counter}}</td>
-            <td>{{user.id}}</td>
-            <td>{{user.first_name}} {{user.last_name}}</td>
-            <td>{{user.gender}}</td>
-            <td>{{user.phone_num}}</td>
-            <td>{{user.dob}}</td>
-            <td>{{user.nationality}}</td>
-            <td>{{user.address}}</td>
-            <td>Actions</td>
-        </tr>
-        {% endfor %}
-    </table>
-    {{users}}
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <canvas id="patient-category" width="1" height="1"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card mt-md-0 mt-3">
+                <div class="card-body">
+                    <canvas id="patient-performance" width="1" height="1"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card mt-3">
+        <div class="card-body">
+            <canvas id="patient-performance1" width="2" height="1"></canvas>
+        </div>
+    </div>
 </div>
+
+<script>
+    (function () {
+        $.ajax({
+            url: `/app/api/get-patient-category`,
+            method: "GET",
+            success: (data) => {
+
+                var ctx = document.getElementById('patient-category').getContext('2d');
+                var myChart = new Chart(ctx, {
+                    type: 'pie',
+                    data: {
+                        labels: ['Recovered', 'Under Treatment', 'No Cases'],
+                        datasets: [{
+                            label: '# of Votes',
+                            data: data,
+                            backgroundColor: [
+                                '#39ff39',
+                                '#ffb100',
+                                'rgba(153, 102, 255, 0.2)',
+                            ],
+                            borderColor: [
+                                '#39ff39',
+                                '#ffb100',
+                                'rgba(153, 102, 255, 0.2)',
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: "Patient Category"
+                            }
+                        },
+                        scales: {
+                        }
+                    }
+                });
+            }
+        });
+
+        const color = ['#39ff39', '#ffb100'];
+
+        $.ajax({
+            url: `/app/api/get-patient-performance/R0000091`,
+            method: "GET",
+            success: (data) => {
+
+                var dataset = data.map((record, index) => {
+                    return {
+                        label: record.part_name,
+                        data: record.exercises.map((e) => { return { x: e.date_time, y: e.oscillation_num }; }),
+                        borderColor: color[index],
+                        borderWidth: 2,
+                    };
+                });
+
+
+                var patientPerformanceCtx = document.getElementById('patient-performance').getContext('2d');
+                var myChart = new Chart(patientPerformanceCtx, {
+                    type: 'line',
+                    data: {
+                        datasets: dataset
+                    },
+                    options: {
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: "Patient Performance"
+                            },
+                            decimation: {
+                                enabled: false,
+                                algorithm: 'min-max',
+                            }
+                        },
+                        scales: {
+                            x: {
+                                type: "time",
+                                ticks: {
+                                    source: 'auto',
+                                    // Disabled rotation for performance
+                                    maxRotation: 0,
+                                    autoSkip: true,
+                                }
+                            }
+                        },
+                        interaction: {
+                            mode: 'nearest',
+                            axis: 'x',
+                            intersect: false
+                        },
+                    }
+                });
+            }
+        });
+
+
+        $.ajax({
+            url: `/app/api/get-patient-prediction/R0000091`,
+            method: "GET",
+            success: (data) => {
+
+                var dataset = data.map((part, index) => {
+                    return {
+                        label: part.part_name,
+                        data: part.data.map((predict) => {
+                            return { x: predict.time, y: predict.oscillation };
+                        }),
+                        borderColor: color[index],
+                        borderWidth: 1,
+                        radius: 0,
+                    }
+                })
+                var patientPerformanceCtx1 = document.getElementById('patient-performance1').getContext('2d');
+                var myChart = new Chart(patientPerformanceCtx1, {
+                    type: 'line',
+                    data: {
+                        datasets: dataset
+                    },
+                    options: {
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: "Patient Performance Prediction"
+                            },
+                            decimation: {
+                                enabled: false,
+                                algorithm: 'min-max',
+                            }
+                        },
+                        scales: {
+                            x: {
+                                type: "time",
+                                ticks: {
+                                    source: 'auto',
+                                    // Disabled rotation for performance
+                                    maxRotation: 0,
+                                    autoSkip: true,
+                                }
+                            }
+                        },
+                        interaction: {
+                            mode: 'nearest',
+                            axis: 'x',
+                            intersect: false
+                        },
+                    }
+                });
+            }
+        });
+    })();
+</script>
 {% endblock %}

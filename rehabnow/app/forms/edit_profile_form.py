@@ -54,7 +54,14 @@ class EditProfileForm(forms.ModelForm):
     address = forms.CharField(max_length=100, initial="")
     postcode = forms.CharField(max_length=10, initial="")
     city = forms.ChoiceField(initial="", choices=[("", "Please choose a state")])
-    state = forms.ChoiceField(initial="", choices=[("", "Please choose a country")])
+    state = forms.TypedChoiceField(
+        initial="",
+        choices=[("", "Please choose a country")],
+        coerce=int,
+        error_messages={
+            "invalid_choice": "Select a valid choice.",
+        },
+    )
     country = forms.ChoiceField(
         initial="",
         choices=get_countries,  # .append(("", "Please choose a country")),
@@ -67,6 +74,7 @@ class EditProfileForm(forms.ModelForm):
             "invalid": "Please enter password with at least 8 characters (including alphabet, digit and special character)"
         },
     )
+    email = forms.CharField(required=False)
     photo = forms.ImageField(required=False)
 
     class Meta:
@@ -84,4 +92,37 @@ class EditProfileForm(forms.ModelForm):
             "country",
             "state",
             "city",
+            "email",
+            "photo",
         ]
+
+    def __init__(self, *args, **kwargs):
+        super(EditProfileForm, self).__init__(*args, **kwargs)
+        print(self._meta.model.id)
+        # print(args.state, kwargs)
+        if self["country"].value():
+            self.fields["state"].choices = list(
+                map(
+                    lambda x: (x.id, x.state),
+                    State.objects.filter(iso2=self["country"].value()),
+                )
+            )
+        print(self.fields["city"].choices)
+        if self["state"].value():
+            # self.data["state"] = 12
+            print(self["state"].value())
+            self.fields["city"].choices = list(
+                map(
+                    lambda x: (x.city, x.city),
+                    City.objects.filter(state=self["state"].value()),
+                )
+            )
+        print(self.fields["city"].choices)
+
+    def __str__(self):
+        return ",".join(self.get_initial_for_field)
+
+
+class PatientForm(EditProfileForm):
+    email = forms.CharField()
+    photo = forms.ImageField()

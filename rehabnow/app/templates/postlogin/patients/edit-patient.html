@@ -1,0 +1,370 @@
+{% extends "postlogin/base/base.html" %}
+{% load static %}
+{% block title %}Profile{% endblock %}
+{% block main_content %}
+<div class="">
+    <form action="" method="POST" id="edit-profile-form" enctype="multipart/form-data" novalidate>
+        {% csrf_token %}
+        <div class="shadow-sm">
+            <div class="">
+                <div class="card shadow-sm mt-3">
+                    <div class="card-body">
+                        <h5 class="font-weight-bold">Personal Information</h5>
+                        <div class="text-center mb-5 m-auto edit-profile-image-wrapper">
+                            <div class="edit-profile-overlay">
+                                <label class="edit-photo-content" for="photo">Change photo</label>
+                            </div>
+                            <img src="{% get_media_prefix %}{{form.photo.value}}" class="rounded-circle" width="100" id="profile-img" />
+                            <input type="file" hidden id="photo" name="photo" />
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <strong>Email Address</strong>
+                            </div>
+                            <div class="col-md-6">
+                                <span>{{form.email.value}}</span>
+                            </div>
+                        </div>
+                        <hr />
+                        <div class="row form-group">
+                            <div class="col-md-4 col-form-label">
+                                <strong>First Name</strong>
+                            </div>
+                            <div class="col-md-6">
+                                <input class="form-control" value="{{ form.first_name.value }}" required type="text" id="first-name" name="first_name" placeholder="Please enter your first name" />
+                                <p class="invalid-feedback">First name is required</p>
+                                {% for error in form.first_name.errors %}
+                                <div class="text-danger">{{error}}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <hr />
+                        <div class="row form-group">
+                            <div class="col-md-4 col-form-label">
+                                <strong>Last Name</strong>
+                            </div>
+                            <div class="col-md-6">
+                                <input class="form-control" value="{{ form.last_name.value }}" required type="text" id="last-name" name="last_name" placeholder="Please enter your last name" />
+                                <p class="invalid-feedback">Last name is required</p>
+                                {% for error in form.last_name.errors %}
+                                <div class="text-danger">{{error}}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <hr />
+                        <div class="row form-group">
+                            <div class="col-md-4 col-form-label">
+                                <strong>IC Num/Passport</strong>
+                            </div>
+                            <div class="col-md-6">
+                                <input class="form-control" value="{{ form.ic_passport.value }}" required type="text" id="ic-num-passport" name="ic_passport" placeholder="Plaese enter your IC number or passport number" />
+                                <p class="invalid-feedback">IC num/passport is required</p>
+                                {% for error in form.ic_passport.errors %}
+                                <div class="text-danger">{{error}}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <hr />
+                        <div class="row form-group">
+                            <div class="col-md-4 col-form-label">
+                                <strong>Phone Number</strong>
+                            </div>
+                            <div class="col-md-6">
+                                <input class="form-control" value="{{ form.phone_num.value }}" required type="text" id="phone-number" name="phone_num" placeholder="Please enter your phone number" />
+                                <p class="invalid-feedback">Phone number is required</p>
+                                {% for error in form.phone_num.errors %}
+                                <div class="text-danger">{{error}}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <hr />
+                        <div class="row form-group">
+                            <div class="col-md-4 col-form-label">
+                                <strong>Gender</strong>
+                            </div>
+                            <div class="col-md-6">
+                                <select class="form-control" id="gender" name="gender" required>
+                                    {% for value, text in form.gender.field.choices %}
+                                    <option value="{{value}}" {% if value == form.gender.value %} selected {% endif %} {% if value == "" %} disabled {% endif %}>
+                                        {{text}}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                                <p class="invalid-feedback">Gender is required</p>
+                                {% for error in form.gender.errors %}
+                                <div class="text-danger">{{error}}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <hr />
+                        <div class="row form-group">
+                            <div class="col-md-4 col-form-label">
+                                <strong>Date of Birth</strong>
+                            </div>
+                            <div class="col-md-6">
+                                <input class="form-control" value="{{ form.dob.value }}" type="date" required id="dob" name="dob" />
+                                <p class="invalid-feedback">Date of birth is required</p>
+                                {% for error in form.dob.errors %}
+                                <div class="text-danger">{{error}}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <hr />
+                        <div class="row form-group">
+                            <div class="col-md-4 col-form-label">
+                                <strong>Nationality</strong>
+                            </div>
+                            <div class="col-md-6">
+                                <select class="form-control" id="nationality" name="nationality" required>
+                                    {% for value, text in form.nationality.field.choices %}
+                                    <option value="{{value}}" {% if value == form.nationality.value %} selected {% endif %} {% if value == "" %} disabled {% endif %}>
+                                        {{text}}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                                <p class="invalid-feedback">Nationality is required</p>
+                                {% for error in form.nationality.errors %}
+                                <div class="text-danger">{{error}}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card shadow-sm mt-3">
+                    <div class="card-body">
+                        <h5 class="font-weight-bold">Residential Address</h5>
+                        <div class="row form-group">
+                            <div class="col-md-4 col-form-label">
+                                <strong>Address</strong>
+                            </div>
+                            <div class="col-md-6">
+                                <input class="form-control" id="address" name="address" value="{{ form.address.value }}" required placeholder="Please enter your address" />
+                                <p class="invalid-feedback">Address is required</p>
+                                {% for error in form.address.errors %}
+                                <div class="text-danger">{{error}}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <hr />
+                        <div class="row form-group">
+                            <div class="col-md-4 col-form-label">
+                                <strong>Postcode</strong>
+                            </div>
+                            <div class="col-md-6">
+                                <input class="form-control" id="postcode" name="postcode" value="{{ form.postcode.value }}" required placeholder="Please enter your postcode" />
+                                <p class="invalid-feedback">Postcode is required</p>
+                                {% for error in form.postcode.errors %}
+                                <div class="text-danger">{{error}}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <hr />
+                        <div class="row form-group">
+                            <div class="col-md-4 col-form-label">
+                                <strong>Country</strong>
+                            </div>
+                            <div class="col-md-6">
+                                <select class="form-control" id="country" name="country" value="Malaysia" required>
+                                    {% for value, text in form.country.field.choices %}
+                                    <option value="{{value}}" {% if value == form.country.value %} selected {% endif %} {% if value == "" %} disabled {% endif %}>
+                                        {{text}}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                                <p class="invalid-feedback">Country is required</p>
+                                {% for error in form.country.errors %}
+                                <div class="text-danger">{{error}}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <hr />
+                        <div class="row form-group">
+                            <div class="col-md-4 col-form-label">
+                                <strong>State</strong>
+                            </div>
+                            <div class="col-md-6">
+                                <select class="form-control" value="Johor" id="state" name="state" required>
+                                    {% for value, text in form.state.field.choices %}
+                                    <option value="{{value}}" {% if value == form.state.value %} selected {% endif %} {% if value == "" %} disabled {% endif %}>
+                                        {{text}}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                                <p class="invalid-feedback">State is required</p>
+                                {% for error in form.state.errors %}
+                                <div class="text-danger">{{error}}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <hr />
+                        <div class="row form-group">
+                            <div class="col-md-4 col-form-label">
+                                <strong>City</strong>
+                            </div>
+                            <div class="col-md-6">
+                                <select class="form-control" id="city" name="city" required>
+                                    {% for value, text in form.city.field.choices %}
+                                    <option value="{{value}}" {% if value == form.city.value %} selected {% endif %} {% if value == "" %} disabled {% endif %}>
+                                        {{text}}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                                <p class="invalid-feedback">City is required</p>
+                                {% for error in form.city.errors %}
+                                <div class="text-danger">{{error}}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card shadow-sm mt-3">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-6">
+                                <h5 class="font-weight-bold">Action</h5>
+                            </div>
+                            <div class="col-6 text-right">
+                                <button class="btn btn-primary" type="button" id="save-btn">Save</button>
+                                <a href="{% url 'patient' patient_id=patient_id%}"><button class="btn btn-warning" type="button">Cancel</button></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
+{% block script %}
+<script>
+    var statesCached = [];
+
+    /*
+    * Handle country select-option change
+    */
+    document.getElementById('country').addEventListener('change', (e) => {
+        var val = e.target.value;
+        getStates(val, (states) => {
+            var stateOptions = '';
+            statesCached = states;
+            states.forEach(state => {
+                stateOptions += `<option value="${state.id}">${state.state}</option>`;
+            });
+            document.getElementById('state').innerHTML = stateOptions;
+        })
+    });
+
+    /*
+    * Handle state select-option change
+    */
+    document.getElementById('state').addEventListener('change', (e) => {
+        var val = e.target.value;
+        var cityOption = '';
+
+        let setCitiesOption = () => {
+            const state = statesCached.find((s) => s.id == val)
+            state.cities.forEach((city) => {
+                cityOption += `<option value="${city.city}">${city.city}</option>`;
+            });
+            document.getElementById('city').innerHTML = cityOption;
+
+        }
+
+        if (statesCached.length < 1) {
+            getStates(document.getElementById('country').value, (states) => {
+                statesCached = states;
+                setCitiesOption()
+            });
+        } else {
+            setCitiesOption()
+        }
+    });
+
+    /*
+    * Handle form submission
+    */
+    document.getElementById("save-btn").addEventListener("click", (e) => {
+        var form = document.getElementById('edit-profile-form');
+        if (form.checkValidity()) {
+            Swal.fire({
+                title: "Confirmation to update profile",
+                text: "Are you sure to update the profile?",
+                icon: 'question',
+                showCancelButton: true,
+
+            }).then(({ isConfirmed }) => {
+                if (isConfirmed) {
+                    form.submit();
+                }
+            });
+        }
+        form.classList.add('was-validated');
+    })
+
+    var passwordVisibility = (elem) => {
+        let state = {
+            visible: false
+        };
+
+        let $elem = document.querySelector(elem);
+        let $button = $elem.querySelector('button');
+        let $passwordInput = $elem.querySelector("input");
+        let $faIcon = $elem.querySelector('.fa-icon-password');
+
+        $button.addEventListener('click', () => {
+            if (!state.visible) {
+                $passwordInput.type = 'text';
+                $faIcon.classList.add('fa-eye-slash');
+                $faIcon.classList.remove('fa-eye');
+            }
+            else {
+                $passwordInput.type = 'password';
+                $faIcon.classList.add('fa-eye');
+                $faIcon.classList.remove('fa-eye-slash');
+            }
+            state.visible = !state.visible;
+        });
+
+        return $elem;
+    }
+
+    function getStates(iso2, callback) {
+        $.ajax({
+            url: `/app/states/${iso2}?format=json`,
+            method: "GET",
+            success: callback
+        });
+    }
+
+    document.getElementById('photo').addEventListener('change', (e) => {
+        console.log(e.target);
+        var files = e.target.files;
+        if (files && files.length) {
+            var img = new Image();
+            img.src = URL.createObjectURL(files[0]);
+            img.onload = function () {
+                console.log(img.width);
+                console.log(img.height);
+                var profile = document.getElementById('profile-img');
+                profile.src = img.src;
+                const width = img.width;
+                const height = img.height;
+                if (height > width) {
+                    const heightCal = height * 100 / width;
+                    profile.style.width = '100px';
+                    profile.style.height = heightCal;
+                    profile.style.marginTop = -(heightCal - 100) / 2;
+                    profile.style.marginLeft = 0;
+                } else if (height <= width) {
+                    const widthCal = width * 100 / height;
+                    profile.style.height = '100px';
+                    profile.style.width = widthCal;
+                    profile.style.marginLeft = -(widthCal - 100) / 2;
+                    profile.style.marginTop = 0;
+                }
+            }
+        }
+    });
+
+</script>
+{% endblock %}

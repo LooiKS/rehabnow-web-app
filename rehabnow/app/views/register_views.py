@@ -1,5 +1,5 @@
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
-from rehabnow.app.models import Snippet, User
+from rehabnow.app.models import Snippet, User, Patient, Physiotherapist, sequence_id
 from django.contrib.auth.tokens import default_token_generator
 from django.shortcuts import render, redirect
 from django.template.loader import render_to_string
@@ -8,6 +8,8 @@ from django.core.mail import send_mail, EmailMessage
 from django.conf import settings
 import re
 from django.utils.encoding import force_bytes
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.response import Response
 
 
 def activate(request, uidb64, token):
@@ -75,8 +77,15 @@ def register(request):
             error = "Password does not match the requirement of at least 8 characters (including alphabet, digit and special character)."
         else:
             try:
-                user = User.objects.create_user(email, "1990-10-10", password)
-            except:
+                user = User.objects.create(
+                    email=email, id=sequence_id(), status="unverified"
+                )
+                user.set_password(password)
+                user.save()
+                p = Physiotherapist.objects.create(physiotherapist=user)
+                p.save()
+            except Exception as e:
+                print(e)
                 error = "Email address is registered."
 
         if error == "":
@@ -108,3 +117,39 @@ def register(request):
 
 def registration_success(request):
     return render(request, "prelogin/registration-success.html")
+
+
+from rehabnow.app.services.email_service import EmailService
+from django.contrib.sites.shortcuts import get_current_site
+from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.encoding import force_bytes
+
+
+@api_view(["POST"])
+def reset_password_api(request):
+    response = {"status": "success"}
+    data = request.data
+    try:
+        patient = Patient.objects.get(patient__email=data["email"]).patient
+        print(patient.status)
+        if patient.status == "active":
+            context = {
+                "domain": get_current_site(request),
+                "uid": urlsafe_base64_encode(force_bytes(patient.pk)),
+                "token": default_token_generator.make_token(patient),
+            }
+            emailService = EmailService(
+                "reset-password.html",
+                context,
+                "RehabNow Password Reset",
+                data["email"],
+            )
+            emailService.send_email()
+        else:
+            response["status"] = "failed"
+            response["errorMessage"] = "Activate"
+    except Exception as e:
+        response["status"] = "failed"
+        response["errorMessage"] = "Email Invalid"
+    return Response(response)

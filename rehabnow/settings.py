@@ -25,7 +25,7 @@ SECRET_KEY = "=a&76=q&9cbj-ym0cz*613h6r18ehe^=9hpbl1g8c)+485%z83"
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "rest_framework",
+    "rest_framework.authtoken",
     # "app.apps.AppConfig",
     "rehabnow.app",
 ]
@@ -106,6 +107,13 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework.authentication.BasicAuthentication",
+        "rest_framework.authentication.TokenAuthentication",
+        "rest_framework.authentication.SessionAuthentication",
+    ]
+}
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.1/topics/i18n/
@@ -124,9 +132,11 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
-STATIC_URL = "/static1/"
-print(BASE_DIR / "rehabnow/storage/")
-STATICFILES_DIR = ["/static/", BASE_DIR / "rehabnow/storage/"]
+STATIC_URL = "/static/"
+import os
+
+MEDIA_URL = "/media/"
+MEDIA_ROOT = os.path.join(BASE_DIR, "rehabnow/storage")
 AUTH_USER_MODEL = "app.User"
 LOGIN_URL = "/app/login"
 

@@ -7,45 +7,71 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('app', '0001_initial'),
+        ("app", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Country',
+            name="Country",
             fields=[
-                ('country', models.CharField(max_length=100)),
-                ('nationality', models.CharField(max_length=100)),
-                ('iso2', models.CharField(max_length=5, primary_key=True, serialize=False)),
+                ("country", models.CharField(max_length=100)),
+                ("nationality", models.CharField(max_length=100)),
+                (
+                    "iso2",
+                    models.CharField(max_length=5, primary_key=True, serialize=False),
+                ),
             ],
             options={
-                'db_table': 'app_data_country',
+                "db_table": "app_data_country",
             },
         ),
         migrations.AlterField(
-            model_name='user',
-            name='id',
-            field=models.CharField(default='R0000341', max_length=20, primary_key=True, serialize=False, unique=True),
+            model_name="user",
+            name="id",
+            field=models.CharField(
+                default="R0000341",
+                max_length=20,
+                primary_key=True,
+                serialize=False,
+                unique=True,
+            ),
         ),
         migrations.CreateModel(
-            name='State',
+            name="State",
             fields=[
-                ('state', models.CharField(max_length=100)),
-                ('id', models.IntegerField(primary_key=True, serialize=False)),
-                ('iso2', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='states', to='app.country')),
+                ("state", models.CharField(max_length=100)),
+                ("id", models.IntegerField(primary_key=True, serialize=False)),
+                (
+                    "iso2",
+                    models.OneToOneField(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="states",
+                        to="app.country",
+                    ),
+                ),
             ],
             options={
-                'db_table': 'app_data_state',
+                "db_table": "app_data_state",
             },
         ),
         migrations.CreateModel(
-            name='City',
+            name="City",
             fields=[
-                ('city', models.CharField(max_length=100, primary_key=True, serialize=False)),
-                ('state', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='cities', to='app.state')),
+                (
+                    "city",
+                    models.CharField(max_length=100, primary_key=True, serialize=False),
+                ),
+                (
+                    "state",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="cities",
+                        to="app.state",
+                    ),
+                ),
             ],
             options={
-                'db_table': 'app_data_city',
+                "db_table": "app_data_city",
             },
         ),
     ]

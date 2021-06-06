@@ -1,0 +1,77 @@
+{% extends "postlogin/base/base.html" %}
+{% load static %}
+{% block title %}Profile{% endblock %}
+{% block main_content %}
+<div class="card">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <h5 class="font-weight-bold">Patients List</h5>
+            </div>
+            <div class="col-md-6 text-md-right">
+                <a class=" border border-info p-2 rounded-lg text-dark" href="{% url 'add-patient' %}">
+                    <i class="fa fa-plus mr-2"></i>Add New Patient
+                </a>
+            </div>
+        </div>
+        <table class="table table-responsive table-striped table-hover d-md-table mt-3">
+            <tr class="table-primary">
+                <th>No.</th>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Gender</th>
+                <th>Phone Number</th>
+                <th>DOB</th>
+                <th>Nationality</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+            {% for user in users %}
+            <tr>
+                <td>{{forloop.counter}}</td>
+                <td><a href="{% url 'patient' patient_id=user.patient.id %}">{{user.patient.id}}</a></td>
+                <td>
+                    <img src="{% get_media_prefix %}{{user.patient.photo}}" width="30" />
+                    <span>{{user.patient.first_name}} {{user.patient.last_name}}</span>
+                </td>
+                <td>{{user.patient.gender}}</td>
+                <td>{{user.patient.phone_num}}</td>
+                <td>{{user.patient.dob}}</td>
+                <td>{{user.patient.get_nationality}}</td>
+                <td class="text-capitalize">{{user.patient.status}}</td>
+                <td>
+                    <a class="btn btn-primary p-2 shadow-none" title="Edit"
+                        href="{% url 'edit-patient' patient_id=user.patient.id %}">
+                        <i class="fa fa-edit align-middle"></i>
+                    </a>
+                    <button class="btn btn-danger p-2 shadow-none" title="Delete"
+                        onclick="deletePatient('{{user.patient.id}}')">
+                        <i class="fa fa-trash align-middle"></i>
+                    </button>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+</div>
+
+{% endblock %}
+{% block script %}
+<script>
+    function deletePatient(id) {
+        Swal.fire({
+            title: `Confirmation to delete patient ${id}`,
+            text: "Are you sure to delete the patient?",
+            icon: 'question',
+            showCancelButton: true,
+        }).then(({ isConfirmed }) => {
+            if (isConfirmed) {
+                const form = document.createElement('form');
+                document.body.append(form);
+                form.action = `/app/patients/${id}/delete`
+                form.submit();
+            }
+        });
+    }
+</script>
+{% endblock %}
