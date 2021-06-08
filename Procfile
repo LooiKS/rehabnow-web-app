@@ -1,1 +1,1 @@
-web: gunicorn app.wsgi --log-file -
+web: gunicorn rehabnow.wsgi --log-file -
