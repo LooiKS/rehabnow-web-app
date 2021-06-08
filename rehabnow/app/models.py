@@ -40,11 +40,11 @@ class User(AbstractBaseUser):
     photo = models.CharField(max_length=50, null=True)
     is_admin = models.BooleanField(default=False)
 
-    city = models.CharField("City", max_length=50)
+    city = models.CharField("City", max_length=50, null=True)
     country = models.CharField("Country", max_length=50, null=True)
-    state = models.IntegerField()
-    postcode = models.CharField(max_length=10)
-    address = models.TextField("Address")
+    state = models.IntegerField(null=True)
+    postcode = models.CharField(max_length=10, null=True)
+    address = models.TextField("Address", null=True)
 
     USERNAME_FIELD = "email"
     objects = UserManager()
