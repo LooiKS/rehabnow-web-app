@@ -3,7 +3,16 @@ from django.contrib.auth import (
     login as django_login,
     logout as django_logout,
 )
+from django.http.response import HttpResponseRedirect
 from django.shortcuts import render, redirect
+from rest_framework.authtoken.models import Token
+from rehabnow.app.models import User
+from rehabnow.app.serializers import UserSerializer
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from django.utils.http import is_safe_url
+from django.contrib.sites.shortcuts import get_current_site
 
 
 def login(request):
@@ -15,7 +24,11 @@ def login(request):
         if user is not None:
             if user.status == "active":
                 django_login(request, user)
-                print(user)
+                next_url = request.GET.get("next")
+                if next_url and is_safe_url(
+                    next_url, allowed_hosts=get_current_site(request)
+                ):
+                    return HttpResponseRedirect(next_url)
                 return redirect("index")
             else:
                 return render(
@@ -36,19 +49,13 @@ def login(request):
     print(request.user.is_authenticated)
     if request.user.is_authenticated is True:
         return redirect("index")
+    print(request.GET)
     return render(request, "prelogin/login.html")
 
 
 def logout(request):
     django_logout(request)
     return render(request, "prelogin/logout.html")
-
-
-from rest_framework.authtoken.models import Token
-from rehabnow.app.models import UserSerializer, User
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
 
 
 @api_view(["POST"])

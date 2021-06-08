@@ -1,18 +1,20 @@
 from django.views import View
 from django.shortcuts import render, redirect
-from rehabnow.app.models import Patient, Physiotherapist, sequence_id, User, Case, Part
+from rehabnow.app.models import Patient, Physiotherapist, sequence_id, User, Case
 from rehabnow.app.forms.edit_profile_form import EditProfileForm, PatientForm
 from django.contrib import messages
-from django.conf import settings
 from rehabnow.app.services.email_service import EmailService
 from rehabnow.app.services.profile_image_service import ProfileImageService
 from django.contrib.sites.shortcuts import get_current_site
-from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
+from django.utils.http import urlsafe_base64_encode
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.encoding import force_bytes
+from django.contrib.auth.decorators import login_required, permission_required
 
 
 class ViewPatients(View):
+    permission_required = "app.web_permission"
+
     def get(self, request, *arg, **kwargs):
         """
         return view of list of patients of the physiotherapist
@@ -25,6 +27,8 @@ class ViewPatients(View):
 
 
 class ViewPatient(View):
+    permission_required = "app.web_permission"
+
     def get(self, request, *arg, **kwargs):
         """
         return view of the single patient of the physiotherapist
@@ -46,6 +50,8 @@ class ViewPatient(View):
         )
 
 
+@login_required
+@permission_required("app.web_permission")
 def edit_patient(request, patient_id):
     user_id = request.user.id
     patients = Patient.objects.filter(physiotherapist=user_id, patient=patient_id)
@@ -93,6 +99,8 @@ def edit_patient(request, patient_id):
         )
 
 
+@login_required
+@permission_required("app.web_permission")
 def add_patient(request):
     if request.method == "POST":
         post = request.POST.copy()
@@ -140,6 +148,8 @@ def add_patient(request):
     return render(request, "postlogin/patients/add-patient.html", {"form": form})
 
 
+@login_required
+@permission_required("app.web_permission")
 def delete_patient(request, patient_id):
     patients = Patient.objects.filter(
         physiotherapist=request.user.id, patient=patient_id

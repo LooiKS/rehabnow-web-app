@@ -4,13 +4,8 @@ from rehabnow.app import views
 from django.contrib.auth.decorators import login_required
 
 urlpatterns = [
-    path("snippets", views.SnippetList.as_view()),
-    path("snippets/<int:pk>/", views.SnippetDetail.as_view()),
     path("states/<iso2>/", views.get_states),
-    path("users/", views.UserList.as_view()),
-    path("users/<int:pk>/", views.UserDetail.as_view()),
     path("", views.index, name="index"),
-    path("detail/<int:id>", views.detail),
     # login
     path("login", views.login, name="login"),
     path("logout", views.logout, name="logout"),

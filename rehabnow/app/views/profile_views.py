@@ -1,29 +1,11 @@
-# from rehabnow.rehabnow.app.models import Target
-# from rehabnow.rehabnow.app.models import PredictedRecovery
-from rehabnow.app.serializers import (
-    ApiCountrySerializer,
-    ApiStateSerializer,
-    ApiCitySerializer,
-)
 from django.shortcuts import render, redirect
 from rehabnow.app.models import (
-    Country,
-    State,
-    City,
-    StateSerializer,
-    User,
-    UserSerializer,
-    Target,
-    CountrySerializer,
-    Exercise,
-    ExerciseSerializer,
-    PredictedRecovery,
     Patient,
     Part,
-    ExerciseRecordsSerializer,
 )
+from rehabnow.app.serializers import UserSerializer, ExerciseRecordsSerializer
 from rehabnow.app.forms.edit_profile_form import EditProfileForm
-import time, datetime
+import time
 from django.contrib.auth import update_session_auth_hash
 from django.contrib import messages
 from rest_framework.decorators import api_view, permission_classes
@@ -32,27 +14,27 @@ from rest_framework.permissions import IsAuthenticated
 from django.conf import settings
 import os
 from PIL import Image
-from django.contrib.auth.decorators import login_required
 from django.views import View
 from django.core.exceptions import ValidationError
 from rehabnow.app.services.profile_image_service import ProfileImageService
 from sklearn.linear_model import LinearRegression
-from datetime import datetime
 from datetime import timedelta
 import math
-from django.utils.timezone import make_aware
+from django.contrib.auth.decorators import login_required, permission_required
 
 
-# @login_required
 class ViewProfile(View):
+    permission_required = "app.web_permission"
+
     def get(self, request, *args, **kwargs):
         return render(
             request, "postlogin/profile/view-profile.html", {"user": request.user}
         )
 
 
-# @login_required
 class EditProfile(View):
+    permission_required = "app.web_permission"
+
     def post(self, request, *args, **kwargs):
         form = EditProfileForm(request.POST, request.FILES)
         user = request.user
@@ -148,134 +130,6 @@ class EditProfile(View):
 
 
 @api_view(["GET"])
-# @permission_classes([IsAuthenticated])
-def get_patient_prediction(request, patient_id):
-    parts = Part.objects.filter(case_id__patient_id=patient_id)
-    responses = []
-
-    for part in parts:
-        data = []
-
-        exercises = part.exercises.all().order_by("created_dt")
-        target = part.targets.all()[0]
-
-        X = list([e.oscillation_num] for e in exercises)
-        y = list([i] for i in range(len(exercises)))
-        print(X)
-        print(y)
-        reg = LinearRegression().fit(X, y)
-        reg.score(X, y)
-
-        x = len(X)
-        predict = 0
-        while x < 100 + len(X):  # and predict < target.oscillation_num:
-            predict = reg.predict([[x]])
-            x = x + 1
-
-            num = x - len(X)
-            if target.frequency == 1:
-                pass
-            elif target.frequency == 2:
-                num = num / 2
-            elif target.frequency == 3:
-                num = num / 3
-            elif target.frequency == 4:
-                num = num * 2
-            else:
-                num = num * 3
-
-            data.append(
-                {
-                    "time": int(
-                        (
-                            exercises[len(exercises) - 1].created_dt
-                            + timedelta(days=math.ceil(num))
-                        ).timestamp()
-                        * 1000
-                    ),
-                    "oscillation": int(predict[0][0]),
-                },
-            )
-        responses.append({"part_name": part.name, "data": data})
-
-    return Response(responses)
-
-
-@api_view(["GET"])
-# @permission_classes([IsAuthenticated])
-def get_patient_performance(request, patient_id):
-    parts = Part.objects.filter(case_id__patient_id=patient_id)
-    return Response(ExerciseRecordsSerializer(parts, many=True).data)
-
-
-@api_view(["GET"])
-# @permission_classes([IsAuthenticated])
-def get_patient_category(request):
-    id = request.user.id
-    patients = Patient.objects.filter(physiotherapist__physiotherapist__id=id)
-    recovered = 0
-    under_treatment = 0
-    no_cases = 0
-    no_under_treatment = False
-
-    for patient in patients:
-        cases = patient.cases.all()
-        if not cases:
-            no_cases += 1
-
-        for case in cases:
-            if case.status == "Under Treatment":
-                under_treatment += 1
-                break
-            else:
-                no_under_treatment = True
-        if no_under_treatment is True:
-            recovered += 1
-
-    return Response([recovered, under_treatment, no_cases])
-
-
-@api_view(["GET"])
-# @permission_classes([IsAuthenticated])
-def get_states(request, iso2):
-    a = {"a": ""}
-    print(a.get("photo"))
-
-    print(request.user)
-    t = str(time.time() * 1000)
-    print(t.index("."))
-    states = StateSerializer(
-        State.objects.prefetch_related("cities").filter(iso2=iso2), many=True
-    ).data
-    return Response(states)
-
-
-@api_view(["GET"])
-def get_nationalities(request):
-    return Response(
-        ApiCountrySerializer(Country.objects.all().order_by("country"), many=True).data
-    )
-
-
-@api_view(["GET"])
-def get_states_by_iso2(request, iso2):
-    return Response(
-        ApiStateSerializer(
-            State.objects.filter(iso2=iso2).order_by("state"), many=True
-        ).data
-    )
-
-
-@api_view(["GET"])
-def get_cities_by_state_id(request, state_id):
-    return Response(
-        ApiCitySerializer(
-            City.objects.filter(state=state_id).order_by("city"), many=True
-        ).data
-    )
-
-
-@api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def get_profile(request):
     return Response(UserSerializer(request.user).data)
@@ -328,69 +182,97 @@ def save_profile(request):
 
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
-def get_exercises(request, part_id):
-    return Response(
-        ExerciseSerializer(Exercise.objects.filter(part_id=part_id), many=True).data
+def get_patient_prediction(request, patient_id):
+    parts = Part.objects.filter(
+        case_id__patient_id=patient_id,
+        case_id__patient_id__physiotherapist=request.user.id,
+        status="Under Treatment",
     )
+    responses = []
 
+    for part in parts:
+        data = {}
 
-@api_view(["POST"])
-@permission_classes([IsAuthenticated])
-def upload_exercise(request):
-    status = "success"
-    part_id = int(request.data["partId"])
-    oscillation_num = int(request.data["oscillationNum"])
-    time_taken = request.data["timeTaken"]
+        exercises = part.exercises.all().order_by("created_dt")
+        target = part.targets.all()[0]
 
-    target = Target.objects.get(part_id=part_id)
-    done = target.oscillation_num <= oscillation_num
+        if len(exercises) > 0:
+            X = list([e.oscillation_num] for e in exercises)
+            y = list([i] for i in range(len(exercises)))
+            print(X)
+            print(y)
+            reg = LinearRegression().fit(X, y)
+            reg.score(X, y)
 
-    Exercise.objects.create(
-        # created_dt=time.time(),
-        oscillation_num=oscillation_num,
-        time_taken=time_taken,
-        part_id_id=part_id,
-        done=done,
-    )
+            x = len(X)
+            predict = 0
+            while x < 100 + len(X):  # and predict < target.oscillation_num:
+                predict = reg.predict([[x]])
+                x = x + 1
 
-    exercises = (
-        Exercise.objects.filter(part_id_id=part_id)
-        .values_list("oscillation_num")
-        .order_by("created_dt")
-    )
+                num = x - len(X)
+                if target.frequency == 1:
+                    pass
+                elif target.frequency == 2:
+                    num = num / 2
+                elif target.frequency == 3:
+                    num = num / 3
+                elif target.frequency == 4:
+                    num = num * 2
+                else:
+                    num = num * 3
 
-    X = list(list(e) for e in exercises)
-    y = list([i] for i in range(len(exercises)))
-    reg = LinearRegression().fit(X, y)
-    reg.score(X, y)
+                data[
+                    int(
+                        (
+                            exercises[len(exercises) - 1].created_dt
+                            + timedelta(days=math.ceil(num))
+                        ).timestamp()
+                        * 1000
+                    )
+                ] = int(predict[0][0] if predict[0][0] > 0 else 0)
 
-    x = len(X)
-    predict = 0
-    while x < 100 + len(X) and predict < target.oscillation_num:
-        predict = reg.predict([[x]])
-        x = x + 1
-
-    if predict != 0:
-        num = x - len(X)
-        if target.frequency == 1:
-            pass
-        elif target.frequency == 2:
-            num = num / 2
-        elif target.frequency == 3:
-            num = num / 3
-        elif target.frequency == 4:
-            num = num * 2
-        else:
-            num = num * 3
-
-        PredictedRecovery.objects.update_or_create(
-            part_id_id=part_id,
-            defaults={
-                "created_by": request.user.id,
-                "recovery_dt": make_aware(
-                    datetime.now() + timedelta(days=math.ceil(num))
-                ),
-            },
+        responses.append(
+            {"part_name": part.name, "case_name": part.case_id.name, "data": data}
         )
 
-    return Response({"data": {}, "status": status})
+    return Response(responses)
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def get_patient_performance(request, patient_id):
+    parts = Part.objects.filter(
+        case_id__patient_id=patient_id,
+        case_id__patient_id__physiotherapist=request.user.id,
+        status="Under Treatment",
+    )
+    print(request.user.id)
+    return Response(ExerciseRecordsSerializer(parts, many=True).data)
+
+
+@api_view(["GET"])
+# @permission_classes([IsAuthenticated])
+def get_patient_category(request):
+    id = request.user.id
+    patients = Patient.objects.filter(physiotherapist__physiotherapist__id=id)
+    recovered = 0
+    under_treatment = 0
+    no_cases = 0
+    no_under_treatment = False
+
+    for patient in patients:
+        cases = patient.cases.all()
+        if not cases:
+            no_cases += 1
+
+        for case in cases:
+            if case.status == "Under Treatment":
+                under_treatment += 1
+                break
+            else:
+                no_under_treatment = True
+        if no_under_treatment is True:
+            recovered += 1
+
+    return Response([recovered, under_treatment, no_cases])

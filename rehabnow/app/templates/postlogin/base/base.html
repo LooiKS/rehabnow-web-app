@@ -3,7 +3,7 @@
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     {% load static %}
-    <link href="{% static 'images/favicon.svg' %}" rel="icon">
+    <link href="{% static 'images/favicon.png' %}" rel="icon">
     <link href="{% static 'bootstrap\css\bootstrap.min.css' %}" rel="stylesheet">
     <link href="{% static 'fontawesome\css\all.min.css' %}" rel="stylesheet">
     <link href="{% static 'style.css' %}" rel="stylesheet">
@@ -35,26 +35,49 @@
     </header>
     <div class="">
         <div class="nav flex-column bg-blue sidebar shadow" id="sidebar">
+            <a class="nav-link py-3" href="{% url 'index' %}"><i class="fa fa-home mr-3"></i>Dashboard</a>
             <a class="nav-link py-3" href="{% url 'patients' %}"><i class="fa fa-medkit mr-3"></i>Patients</a>
             <a class="nav-link py-3" href="{% url 'profile'%}"><i class="fa fa-user mr-3"></i>Profile</a>
             <a class="nav-link py-3" href="{% url 'logout' %}"><i class="fa fa-sign-out-alt mr-3"></i>Logout</a>
         </div>
         <div class="p-3" id="main-content">
-            {% for message in messages %}
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                <strong>{{message}}</strong>
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+            <div style="min-height: calc(100vh - 9rem);">
+                {% for message in messages %}
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <strong>{{message}}</strong>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                {% endfor %}
+                {% block main_content %}
+                {% endblock %}
             </div>
-            {% endfor %}
-            {% block main_content %}
-            {% endblock %}
+            <div class="mt-3">
+                <div>
+                    <p class="text-muted text-center mb-0">RehabNow &copy; <span id="year"></span> | Powered By Looi Kian Seng</p>
+                </div>
+            </div>
+        </div>
+        <div class="loading-overlay" id="submit-spinner" style="position: fixed;top: 0;z-index: 120000;">
+            <div class="loading-spinner">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="sr-only">Loading...</span>
+                </div>
+            </div>
         </div>
     </div>
 </body>
+{% block script %}
+{% endblock %}
 
 <script>
+    $(function () {
+        $("#year").text(new Date().getFullYear());
+        $("form").submit((event) => {
+            $("#submit-spinner").addClass("d-block");
+        });
+    });
     function toggleSidebar() {
         var sidebar = document.getElementById('sidebar');
         if (window.innerWidth >= 768) {
@@ -66,7 +89,5 @@
         }
     }
 </script>
-{% block script %}
-{% endblock %}
 
 </html>

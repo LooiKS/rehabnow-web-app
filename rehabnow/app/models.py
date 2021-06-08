@@ -1,19 +1,7 @@
-# from django.db import models
 from django.db import models, connection
-from pygments.lexers import get_all_lexers, get_lexer_by_name
-from pygments.formatters.html import HtmlFormatter
-from pygments.styles import get_all_styles
-from pygments import highlight
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.utils import timezone
-from django.core.mail import EmailMessage
-from rest_framework import serializers
-import datetime
-
-LEXERS = [item for item in get_all_lexers() if item[1]]
-LANGUAGE_CHOICES = sorted([(item[1][0], item[0]) for item in LEXERS])
-STYLE_CHOICES = sorted([(item, item) for item in get_all_styles()])
-# Create your models here.
+from django.core.validators import MinValueValidator
 
 
 def sequence_id():
@@ -61,6 +49,10 @@ class User(AbstractBaseUser):
     USERNAME_FIELD = "email"
     objects = UserManager()
 
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self.has_perm = True
+
     def __str__(self):
         return ",".join(
             (self.id, self.email, self.phone_num, self.ic_passport, self.dob.__str__())
@@ -70,8 +62,10 @@ class User(AbstractBaseUser):
     def is_staff(self):
         return self.is_admin
 
-    def has_perm(self, perm):
-        return True
+    def has_perms(self, perm):
+        print(self.id)
+        print(Physiotherapist.objects.filter(physiotherapist__id=self.id).exists())
+        return Physiotherapist.objects.filter(physiotherapist__id=self.id).exists()
 
     def has_module_perms(self, app_label):
         return True
@@ -139,54 +133,6 @@ class City(models.Model):
 
     class Meta:
         db_table = "app_data_city"
-
-
-class UserSerializer(serializers.ModelSerializer):
-    full_state = serializers.SerializerMethodField()
-    full_country = serializers.SerializerMethodField()
-    full_nationality = serializers.SerializerMethodField()
-    dob = serializers.SerializerMethodField()
-
-    class Meta:
-        model = User
-        exclude = ["password"]
-
-    def get_full_state(self, user):
-        return State.objects.get(id=user.state).state
-
-    def get_full_country(self, user):
-        return Country.objects.get(iso2=user.country).country
-
-    def get_full_nationality(self, user):
-        return Country.objects.get(iso2=user.nationality).nationality
-
-    def get_dob(self, user):
-        return (int)((user.dob - datetime.date(1970, 1, 1)).total_seconds() * 1000)
-
-
-class CitySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = City
-        fields = "__all__"
-
-
-class StateSerializer(serializers.ModelSerializer):
-    cities = CitySerializer(many=True)
-
-    class Meta:
-        model = State
-        fields = ["iso2", "state", "id", "cities"]
-
-
-class CountrySerializer(serializers.ModelSerializer):
-    states = StateSerializer(many=True, read_only=True)
-
-    class Meta:
-        model = Country
-        fields = ["country", "states", "nationality", "iso2"]
-
-
-from django.core.validators import MinValueValidator
 
 
 class Case(models.Model):
@@ -265,176 +211,11 @@ class PredictedRecovery(models.Model):
     )
 
 
-class PredictedRecoverySerializer(serializers.ModelSerializer):
-    created_dt = serializers.SerializerMethodField()
-    recovery_dt = serializers.SerializerMethodField()
-
+class SupportPermission(models.Model):
     class Meta:
-        model = PredictedRecovery
-        fields = "__all__"
-
-    def get_created_dt(self, part):
-        return (int)((part.created_dt.timestamp() * 1000))
-
-    def get_recovery_dt(self, part):
-        return (int)((part.recovery_dt.timestamp() * 1000))
-
-
-class CaseSerializer(serializers.ModelSerializer):
-    created_dt = serializers.SerializerMethodField()
-    created_by = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Case
-        fields = "__all__"
-
-    def get_created_dt(self, case):
-        return (int)((case.created_dt.timestamp() * 1000))
-
-    def get_created_by(self, target):
-        return User.objects.get(id=target.created_by).get_full_name()
-
-
-class TargetSerializer(serializers.ModelSerializer):
-    created_dt = serializers.SerializerMethodField()
-    created_by = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Target
-        fields = "__all__"
-
-    def get_created_dt(self, part):
-        return (int)((part.created_dt.timestamp() * 1000))
-
-    def get_created_by(self, target):
-        return User.objects.get(id=target.created_by).get_full_name()
-
-
-class PartSerializer(serializers.ModelSerializer):
-    created_dt = serializers.SerializerMethodField()
-    recovery_dt = serializers.SerializerMethodField()
-    targets = TargetSerializer(many=True)
-    created_by = serializers.SerializerMethodField()
-    predicted_recoveries = PredictedRecoverySerializer(many=True)
-
-    class Meta:
-        model = Part
-        fields = [
-            "description",
-            "name",
-            "recovery_dt",
-            "status",
-            "created_dt",
-            "created_by",
-            "case_id",
-            "id",
-            "targets",
-            "predicted_recoveries",
-        ]
-
-    def get_created_dt(self, part):
-        return (int)((part.created_dt.timestamp() * 1000))
-
-    def get_recovery_dt(self, part):
-        return (
-            part.recovery_dt
-            if part.recovery_dt is None
-            else (int)((part.recovery_dt.timestamp() * 1000))
+        managed = False
+        default_permissions = ()
+        permissions = (
+            ("web_permission", "Access Web"),
+            ("mobile_permission", "Access Mobile"),
         )
-
-    def get_created_by(self, target):
-        return User.objects.get(id=target.created_by).get_full_name()
-
-
-class ExerciseSerializer(serializers.ModelSerializer):
-    created_dt = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Exercise
-        fields = "__all__"
-
-    def get_created_dt(self, part):
-        print(type(part.created_dt))
-        datetime.datetime
-        return (int)((part.created_dt.timestamp() * 1000))
-
-
-class ExerciseDataSerializer(serializers.Serializer):
-    date_time = serializers.SerializerMethodField()
-    oscillation_num = serializers.IntegerField()
-
-    def get_date_time(self, instance):
-        # print(instance.part_id.name)
-        return (int)((instance.created_dt.timestamp() * 1000))
-
-
-class ExerciseRecordsSerializer(serializers.Serializer):
-    part_name = serializers.SerializerMethodField()
-    case_name = serializers.SerializerMethodField()
-    exercises = ExerciseDataSerializer(many=True)
-    targets = TargetSerializer(many=True)
-
-    def get_part_name(self, instance):
-        # print(instance.part_id.name)
-        return instance.name
-
-    def get_case_name(self, instance):
-        # print(instance.part_id.name)
-        return instance.case_id.name
-
-    # def get_data(self, instance):
-    #     print(instance.exercises.all())
-    #     return ExerciseDataSerializer(instance.exercises.all(), many=True)
-
-    # SELECT * FROM PART WHERE
-    # SELECT * FROM CASE WHERE PATIENT_ID = 'PID'
-
-
-# class ExerciseSummarySerializer(serializers.Serializer):
-#     """
-#     last_osc
-#     target
-#     """
-#     upper_left =
-#     upper_right =
-#     lower_left =
-#     lower_right =
-
-
-class Snippet(models.Model):
-    created = models.DateTimeField(auto_now_add=True)
-    title = models.CharField(max_length=100, blank=True, default="")
-    code = models.TextField()
-    linenos = models.BooleanField(default=False)
-    language = models.CharField(
-        choices=LANGUAGE_CHOICES, default="python", max_length=100
-    )
-    style = models.CharField(choices=STYLE_CHOICES, default="friendly", max_length=100)
-    owner = models.ForeignKey(User, related_name="snippets", on_delete=models.CASCADE)
-    highlighted = models.TextField()
-
-    def __str__(self):
-        return self.code
-
-    class Meta:
-        ordering = ["created"]
-
-    def save(self, *args, **kwargs):
-        """
-        Use the `pygments` library to create a highlighted HTML
-        representation of the code snippet.
-        """
-        lexer = get_lexer_by_name(self.language)
-        linenos = "table" if self.linenos else False
-        options = {"title": self.title} if self.title else {}
-        formatter = HtmlFormatter(
-            style=self.style, linenos=linenos, full=True, **options
-        )
-        self.highlighted = highlight(self.code, lexer, formatter)
-        super(Snippet, self).save(*args, **kwargs)
-
-
-"""
-
-
-"""

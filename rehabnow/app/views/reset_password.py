@@ -1,13 +1,16 @@
 from django.shortcuts import render, redirect
-from rehabnow.app.models import Snippet, User
+from rehabnow.app.models import Patient, User
 from django.template.loader import render_to_string
 from django.contrib.sites.shortcuts import get_current_site
-from django.core.mail import send_mail, EmailMessage
+from django.core.mail import EmailMessage
 from django.conf import settings
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from django.utils.encoding import force_bytes
 from django.contrib.auth.tokens import default_token_generator
 import re
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rehabnow.app.services.email_service import EmailService
 
 
 def forgot_password(request):
@@ -74,3 +77,32 @@ def reset_password(request, uidb64, token):
 
 def reset_password_success(request):
     return render(request, "prelogin/reset-password-success.html")
+
+
+@api_view(["POST"])
+def reset_password_api(request):
+    response = {"status": "success"}
+    data = request.data
+    try:
+        patient = Patient.objects.get(patient__email=data["email"]).patient
+        print(patient.status)
+        if patient.status == "active":
+            context = {
+                "domain": get_current_site(request),
+                "uid": urlsafe_base64_encode(force_bytes(patient.pk)),
+                "token": default_token_generator.make_token(patient),
+            }
+            emailService = EmailService(
+                "reset-password.html",
+                context,
+                "RehabNow Password Reset",
+                data["email"],
+            )
+            emailService.send_email()
+        else:
+            response["status"] = "failed"
+            response["errorMessage"] = "Activate"
+    except Exception as e:
+        response["status"] = "failed"
+        response["errorMessage"] = "Email Invalid"
+    return Response(response)

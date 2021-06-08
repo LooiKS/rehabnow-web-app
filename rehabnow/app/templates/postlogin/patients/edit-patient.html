@@ -224,8 +224,8 @@
                                 <h5 class="font-weight-bold">Action</h5>
                             </div>
                             <div class="col-6 text-right">
-                                <button class="btn btn-primary" type="button" id="save-btn">Save</button>
-                                <a href="{% url 'patient' patient_id=patient_id%}"><button class="btn btn-warning" type="button">Cancel</button></a>
+                                <button class="btn btn-outline-primary" type="button" id="save-btn">Save</button>
+                                <a href="{% url 'patient' patient_id=patient_id%}"><button class="btn btn-outline-warning" type="button">Cancel</button></a>
                             </div>
                         </div>
                     </div>
@@ -251,32 +251,35 @@
                 stateOptions += `<option value="${state.id}">${state.state}</option>`;
             });
             document.getElementById('state').innerHTML = stateOptions;
+            setCitiesOption(states[0].id)
         })
     });
 
     /*
     * Handle state select-option change
     */
+    let setCitiesOption = (stateId) => {
+        var cityOption = '';
+        const state = statesCached.find((s) => s.id == stateId)
+        state.cities.forEach((city) => {
+            cityOption += `<option value="${city.city}">${city.city}</option>`;
+        });
+        document.getElementById('city').innerHTML = cityOption;
+
+    }
+
     document.getElementById('state').addEventListener('change', (e) => {
         var val = e.target.value;
-        var cityOption = '';
 
-        let setCitiesOption = () => {
-            const state = statesCached.find((s) => s.id == val)
-            state.cities.forEach((city) => {
-                cityOption += `<option value="${city.city}">${city.city}</option>`;
-            });
-            document.getElementById('city').innerHTML = cityOption;
 
-        }
 
         if (statesCached.length < 1) {
             getStates(document.getElementById('country').value, (states) => {
                 statesCached = states;
-                setCitiesOption()
+                setCitiesOption(val)
             });
         } else {
-            setCitiesOption()
+            setCitiesOption(val)
         }
     });
 

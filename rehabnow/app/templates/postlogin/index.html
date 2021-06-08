@@ -1,180 +1,348 @@
 {% extends "postlogin/base/base.html" %}
 {% block main_content %}
 <div>
-    <div class="row">
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-body">
-                    <canvas id="patient-category" width="1" height="1"></canvas>
+    <div class="card">
+        <div class="loading-overlay" id="patient-category-spinner">
+            <div class="loading-spinner">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="sr-only">Loading...</span>
                 </div>
             </div>
         </div>
-        <div class="col-md-6">
-            <div class="card mt-md-0 mt-3">
+        <div class="card-body mx-auto" style="height: 500px;width: 500px;max-width: 90vw;max-height: 50vh;">
+            <canvas id="patient-category"></canvas>
+        </div>
+    </div>
+    <div class="card mt-3">
+        <div class="card-body">
+            {% if patients|length %}
+            <div class="row">
+                <div class="col-sm-3">
+                    <p class="col-form-label"><b>Select Patient:</b></p>
+                </div>
+                <div class="col-sm-9">
+                    <select name="" id="patient-selected" class="form-control">
+                        {% for patient in patients %}
+                        <option value="{{patient.patient.id}}">
+                            {{patient.patient.get_full_name}} ({{patient.patient.id}})
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            {% else %}
+            <b>No patients found.</b>
+            {% endif %}
+        </div>
+    </div>
+    {% if patients|length %}
+    <div class="row mt-3">
+        <div class="col-md-6 pr-md-2">
+            <div class="card">
+                <div class="loading-overlay" id="patient-performance-spinner">
+                    <div class="loading-spinner">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="sr-only">Loading...</span>
+                        </div>
+                    </div>
+                </div>
                 <div class="card-body">
                     <canvas id="patient-performance" width="1" height="1"></canvas>
                 </div>
             </div>
         </div>
-    </div>
-    <div class="card mt-3">
-        <div class="card-body">
-            <canvas id="patient-performance1" width="2" height="1"></canvas>
+        <div class="col-md-6 pl-md-2">
+            <div class="card mt-md-0 mt-3">
+                <div class="loading-overlay" id="patient-performance1-spinner">
+                    <div class="loading-spinner">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="sr-only">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <canvas id="patient-performance1" width="1" height="1"></canvas>
+                </div>
+            </div>
         </div>
     </div>
+    {% endif %}
 </div>
 
 <script>
+    const color = ['#39ff39', '#ffb100'];
+    var patientPredictionChart;
+    var patientPerformanceChart;
+    var patientCategoryChart;
+    let plugins = [
+        {
+            afterDraw: function (chart) {
+                let showNoData = (text) => {
+                    var ctx = chart.ctx;
+                    var width = chart.width;
+                    var height = chart.height
+
+                    ctx.save();
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.font = "16px normal 'Helvetica Nueue'";
+                    ctx.fillText(text, width / 2, height / 2);
+                    ctx.restore();
+                }
+
+                if (chart.data.datasets.length === 0) {
+                    showNoData("No part is registered for this patient");
+                } else if (chart.data.datasets.filter((data) => data.data.length > 0).length === 0) {
+                    showNoData("No data");
+                }
+            },
+        }
+    ];
+
     (function () {
+        var patientSelected = $("#patient-selected").change((event) => {
+            var pId = event.target.value;
+            fetchAndShowPerformance(pId);
+            fetchAndShowPrediction(pId);
+        });
+
+        $("#patient-category-spinner").addClass("d-block").removeClass("d-none");
         $.ajax({
             url: `/app/api/get-patient-category`,
             method: "GET",
             success: (data) => {
-
-                var ctx = document.getElementById('patient-category').getContext('2d');
-                var myChart = new Chart(ctx, {
-                    type: 'pie',
-                    data: {
-                        labels: ['Recovered', 'Under Treatment', 'No Cases'],
-                        datasets: [{
-                            label: '# of Votes',
-                            data: data,
-                            backgroundColor: [
-                                '#39ff39',
-                                '#ffb100',
-                                'rgba(153, 102, 255, 0.2)',
-                            ],
-                            borderColor: [
-                                '#39ff39',
-                                '#ffb100',
-                                'rgba(153, 102, 255, 0.2)',
-                            ],
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        plugins: {
-                            title: {
-                                display: true,
-                                text: "Patient Category"
-                            }
-                        },
-                        scales: {
-                        }
-                    }
-                });
+                showPatientCategory(data);
+                $("#patient-category-spinner").addClass("d-none").removeClass("d-block");
             }
         });
 
-        const color = ['#39ff39', '#ffb100'];
+        showPatientPerformance();
+        showPatientPrediction();
+        if (patientSelected.val()) {
+            fetchAndShowPerformance(patientSelected.val());
+            fetchAndShowPrediction(patientSelected.val());
+        } else {
 
+        }
+    })();
+
+    function showPatientCategory(data) {
+        var ctx = document.getElementById('patient-category').getContext('2d');
+        patientCategoryChart = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: ['Recovered', 'Under Treatment', 'No Cases'],
+                datasets: [{
+                    label: '# of Votes',
+                    data: data,
+                    backgroundColor: [
+                        '#39ff39',
+                        '#ffb100',
+                        'rgba(153, 102, 255, 0.2)',
+                    ],
+                    borderColor: [
+                        '#39ff39',
+                        '#ffb100',
+                        'rgba(153, 102, 255, 0.2)',
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            plugins: [{
+                afterDraw: function (chart) {
+                    let showNoData = (text) => {
+                        var ctx = chart.ctx;
+                        var width = chart.width;
+                        var height = chart.height
+
+                        ctx.save();
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        ctx.font = "16px normal 'Helvetica Nueue'";
+                        ctx.fillText(text, width / 2, height / 2);
+                        ctx.restore();
+                    }
+
+                    if (chart.data.datasets.filter((data) => data.data.filter((value) => value !== 0).length !== 0).length === 0) {
+                        showNoData("No data");
+                    }
+                },
+            }],
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: "Patient Category"
+                    }
+                },
+                scales: {
+                }
+            }
+        });
+    }
+
+    function showPatientPerformance() {
+        var patientPerformanceCtx = document.getElementById('patient-performance')?.getContext('2d');
+        if (patientPerformanceCtx)
+            patientPerformanceChart = new Chart(patientPerformanceCtx, {
+                type: 'line',
+                data: {
+                    datasets: []
+                },
+                plugins: plugins,
+                options: {
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: "Patient Performance"
+                        },
+                        decimation: {
+                            enabled: false,
+                            algorithm: 'min-max',
+                        }
+                    },
+                    scales: {
+                        x: {
+                            type: "time",
+                            ticks: {
+                                source: 'auto',
+                                // Disabled rotation for performance
+                                maxRotation: 0,
+                                autoSkip: true,
+                            }
+                        }
+                    },
+                    interaction: {
+                        mode: 'nearest',
+                        axis: 'x',
+                        intersect: false
+                    },
+                }
+            });
+    }
+
+    function showPatientPrediction() {
+
+        var patientPerformanceCtx1 = document.getElementById('patient-performance1')?.getContext('2d');
+        if (patientPerformanceCtx1)
+            patientPredictionChart = new Chart(patientPerformanceCtx1, {
+                type: 'line',
+                data: {
+                    datasets: []
+                },
+                plugins: plugins,
+                options: {
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                title: function (tooltipItem, data) {
+                                    let str = tooltipItem[0].label.split(",");
+                                    return str[0] + ',' + str[1];
+                                }
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: "Patient Performance Prediction"
+                        },
+                        decimation: {
+                            enabled: false,
+                            algorithm: 'min-max',
+                        }
+                    },
+                    scales: {
+                        x: {
+                            type: "time",
+                            ticks: {
+                                source: 'auto',
+                                // Disabled rotation for performance
+                                maxRotation: 0,
+                                autoSkip: true,
+                            }
+                        }
+                    },
+                    interaction: {
+                        mode: 'nearest',
+                        axis: 'x',
+                        intersect: false
+                    },
+                }
+            });
+
+    }
+
+    function fetchAndShowPerformance(pId) {
+        $("#patient-performance-spinner").addClass("d-block").removeClass("d-none");
         $.ajax({
-            url: `/app/api/get-patient-performance/R0000091`,
+            url: `/app/api/get-patient-performance/${pId}`,
             method: "GET",
             success: (data) => {
 
                 var dataset = data.map((record, index) => {
                     return {
-                        label: record.part_name,
+                        label: `${record.part_name} - ${record.case_name}`,
                         data: record.exercises.map((e) => { return { x: e.date_time, y: e.oscillation_num }; }),
                         borderColor: color[index],
-                        borderWidth: 2,
+                        borderWidth: 3,
+                        pointRadius: 2,
                     };
                 });
-
-
-                var patientPerformanceCtx = document.getElementById('patient-performance').getContext('2d');
-                var myChart = new Chart(patientPerformanceCtx, {
-                    type: 'line',
-                    data: {
-                        datasets: dataset
-                    },
-                    options: {
-                        plugins: {
-                            title: {
-                                display: true,
-                                text: "Patient Performance"
-                            },
-                            decimation: {
-                                enabled: false,
-                                algorithm: 'min-max',
-                            }
-                        },
-                        scales: {
-                            x: {
-                                type: "time",
-                                ticks: {
-                                    source: 'auto',
-                                    // Disabled rotation for performance
-                                    maxRotation: 0,
-                                    autoSkip: true,
-                                }
-                            }
-                        },
-                        interaction: {
-                            mode: 'nearest',
-                            axis: 'x',
-                            intersect: false
-                        },
-                    }
-                });
+                patientPerformanceChart.data.datasets = dataset;
+                patientPerformanceChart.update();
+                $("#patient-performance-spinner").addClass("d-none").removeClass("d-block");
             }
         });
+
+
+    }
+
+    function fetchAndShowPrediction(pId) {
+        $("#patient-performance1-spinner").addClass("d-block").removeClass("d-none");
+        let getData = (partData) => {
+            let datas = [];
+            for (let data in partData) {
+                datas.push(
+                    { x: parseInt(data), y: partData[data] }
+                )
+            }
+            return datas;
+        }
 
 
         $.ajax({
-            url: `/app/api/get-patient-prediction/R0000091`,
+            url: `/app/api/get-patient-prediction/${pId}`,
             method: "GET",
             success: (data) => {
-
                 var dataset = data.map((part, index) => {
                     return {
-                        label: part.part_name,
-                        data: part.data.map((predict) => {
-                            return { x: predict.time, y: predict.oscillation };
-                        }),
+                        label: `${part.part_name} - ${part.case_name}`,
+                        data: getData(part.data),
                         borderColor: color[index],
-                        borderWidth: 1,
-                        radius: 0,
-                    }
-                })
-                var patientPerformanceCtx1 = document.getElementById('patient-performance1').getContext('2d');
-                var myChart = new Chart(patientPerformanceCtx1, {
-                    type: 'line',
-                    data: {
-                        datasets: dataset
-                    },
-                    options: {
-                        plugins: {
-                            title: {
-                                display: true,
-                                text: "Patient Performance Prediction"
-                            },
-                            decimation: {
-                                enabled: false,
-                                algorithm: 'min-max',
-                            }
-                        },
-                        scales: {
-                            x: {
-                                type: "time",
-                                ticks: {
-                                    source: 'auto',
-                                    // Disabled rotation for performance
-                                    maxRotation: 0,
-                                    autoSkip: true,
-                                }
-                            }
-                        },
-                        interaction: {
-                            mode: 'nearest',
-                            axis: 'x',
-                            intersect: false
-                        },
+                        borderWidth: 3,
+                        pointRadius: 2,
                     }
                 });
+
+                // if (dataset.filter((data) => data.data.length > 0).length === 0) {
+                //     // alert()
+                //     console.log(patientPredictionChart);
+                //     let width = patientPredictionChart.width;
+                //     let height = patientPredictionChart.height;
+                //     patientPredictionChart.data.datasets = null;
+                //     patientPredictionChart.clear();
+                //     patientPredictionChart.ctx.save();
+                //     patientPredictionChart.ctx.fillText("No Data", 50 / 2, 50 / 2);
+                //     // patientPredictionChart.ctx.restore();
+                // } else {
+                patientPredictionChart.data.datasets = dataset;
+                patientPredictionChart.update();
+                $("#patient-performance1-spinner").addClass("d-none").removeClass("d-block");
+                // }
             }
         });
-    })();
+
+    }
 </script>
 {% endblock %}

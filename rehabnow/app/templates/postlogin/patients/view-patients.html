@@ -9,11 +9,14 @@
                 <h5 class="font-weight-bold">Patients List</h5>
             </div>
             <div class="col-md-6 text-md-right">
-                <a class=" border border-info p-2 rounded-lg text-dark" href="{% url 'add-patient' %}">
+                <a class="p-2 btn btn-outline-primary" href="{% url 'add-patient' %}">
                     <i class="fa fa-plus mr-2"></i>Add New Patient
                 </a>
             </div>
         </div>
+        {% if not users|length %}
+        {% include 'postlogin/components/not-found.html' %}
+        {% else %}
         <table class="table table-responsive table-striped table-hover d-md-table mt-3">
             <tr class="table-primary">
                 <th>No.</th>
@@ -40,18 +43,17 @@
                 <td>{{user.patient.get_nationality}}</td>
                 <td class="text-capitalize">{{user.patient.status}}</td>
                 <td>
-                    <a class="btn btn-primary p-2 shadow-none" title="Edit"
-                        href="{% url 'edit-patient' patient_id=user.patient.id %}">
+                    <a class="btn btn-primary p-2 shadow-none" title="Edit" href="{% url 'edit-patient' patient_id=user.patient.id %}">
                         <i class="fa fa-edit align-middle"></i>
                     </a>
-                    <button class="btn btn-danger p-2 shadow-none" title="Delete"
-                        onclick="deletePatient('{{user.patient.id}}')">
+                    <button class="btn btn-danger p-2 shadow-none" title="Delete" onclick="deletePatient('{{user.patient.id}}')">
                         <i class="fa fa-trash align-middle"></i>
                     </button>
                 </td>
             </tr>
             {% endfor %}
         </table>
+        {% endif %}
     </div>
 </div>
 

@@ -1,5 +1,5 @@
 from django import template
-from rehabnow.app.forms.case_form import TARGET_FREQUENCIES
+from rehabnow.app.forms.target_form import TARGET_FREQUENCIES
 
 register = template.Library()
 

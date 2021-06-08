@@ -91,7 +91,7 @@
                     </div>
                 </div>
                 <div class="text-center mt-3">
-                    <a class="btn btn-primary" href="{% url 'edit-patient' patient_id=user.id%}">Edit</a>
+                    <a class="btn btn-outline-primary" href="{% url 'edit-patient' patient_id=user.id%}">Edit</a>
                 </div>
             </div>
         </div>
@@ -115,6 +115,7 @@
         <div class="alert alert-primary my-3">
             <strong>No cases is added.</strong>
         </div>
+        {% include 'postlogin/components/not-found.html' %}
         {% endif %}
         {% for case in cases %}
         <div class="card my-3 border-info shadow-sm">
@@ -130,7 +131,7 @@
                     </div>
                     <div class="col-md-4">
                         <div class="mt-2">
-                            <a href="{% url 'edit-case' patient_id=user.id case_id=case.id %}" class="btn btn-outline-secondary">
+                            <a href="{% url 'edit-case' patient_id=user.id case_id=case.id %}" class="btn btn-outline-success">
                                 <i class="fa fa-edit"></i> Edit
                             </a>
                             <form action="/app/cases/{{user.id}}/{{case.id}}/delete" method="POST" class="d-inline">
@@ -150,8 +151,8 @@
                                 <p>{{part.description}}</p>
                             </div>
                             <div class="col-3">
-                                {% if part.recevory_dt %}
-                                <p>{{part.recevory_dt|default:'-'}}</p>
+                                {% if part.recovery_dt %}
+                                <p>{{part.recovery_dt| date:'M d, Y'|default:'-'}}</p>
                                 {% else %}
                                 <p>{{part.predicted_recoveries.all.0.recovery_dt | date:'M d, Y'|default:'-'}} (Predicted)</p>
                                 {% endif %}

@@ -5,3 +5,6 @@ from .reset_password import *
 from .profile_views import *
 from .patients_views import *
 from .case_views import *
+from .part_views import *
+from .exercise_views import *
+from .residential_data_views import *

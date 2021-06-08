@@ -7,20 +7,19 @@
 </div>
 <form action="" method="POST">
     {% csrf_token %}
+    <input type="text" hidden value="{{ request.GET.next }}">
     <div class="card-body">
         <div class="input-group mb-3">
             <div class="input-group-prepend">
                 <div class="input-group-text"><i class="fa fa-envelope"></i></div>
             </div>
-            <input id="email" class="form-control form-control-lg" type="text" placeholder="Email" name="email"
-                value="{{email}}" required />
+            <input id="email" class="form-control form-control-lg" type="text" placeholder="Email" name="email" value="{{email}}" required />
         </div>
         <div class="input-group my-3">
             <div class="input-group-prepend">
                 <div class="input-group-text"><i class="fa fa-lock"></i></div>
             </div>
-            <input id="password" class="form-control form-control-lg" type="password" placeholder="Password"
-                name="password" required style="border-right: 0;" />
+            <input id="password" class="form-control form-control-lg" type="password" placeholder="Password" name="password" required style="border-right: 0;" />
             <div class="input-group-append">
                 <div class="input-group-text" style="border-left: 0;background-color: white;padding: 0;">
                     <button id="password-toggler" class="shadow-none btn" type="button">

@@ -41,17 +41,19 @@
                             {% endfor %}
                         </div>
                     </div>
+                    <!-- {% if cardTitle != 'Add Case' %}
                     <div class="row form-group">
                         <div class="col-md-4 col-form-label">
                             <strong>Recovered on</strong>
                         </div>
                         <div class="col-md-8">
-                            <input class="form-control" type="date" id="case-recovered-dt" name="case-recovered_dt" value="{{case_form.recovered_dt.value}}" />
+                            <input class="form-control" type="date" id="case-recovered-dt" name="case-recovery_dt" value="{{case_form.recovery_dt.value}}" />
                             {% for error in form.email.errors %}
                             <div class="text-danger">{{error}}</div>
                             {% endfor %}
                         </div>
                     </div>
+                    {% endif %}
                     <div class="row form-group">
                         <div class="col-md-4 col-form-label">
                             <strong class="required-ast">Status</strong>
@@ -68,7 +70,7 @@
                             <div class="text-danger">{{error}}</div>
                             {% endfor %}
                         </div>
-                    </div>
+                    </div> -->
                     <!-- <div class="row form-group">
                         <div class="col-md-4 col-form-label">
                             <strong>Created on</strong>
@@ -147,24 +149,26 @@
                                                     {% endfor %}
                                                 </div>
                                             </div>
+                                            {% if cardTitle != 'Add Case' %}
                                             <div class="row form-group">
                                                 <div class="col-md-4 col-form-label">
                                                     <strong>Recovered on</strong>
                                                 </div>
                                                 <div class="col-md-8">
-                                                    <input class="form-control" type="date" id="{{form.recovered.id_for_label}}-dt" name="{{form.recovered_dt.html_name}}" value="{{form.recovered_dt.value}}" />
-                                                    {% for error in form.recovered_dt.errors %}
+                                                    <input class="form-control" type="date" id="{{form.recovery_dt.id_for_label}}" name="{{form.recovery_dt.html_name}}" value="{{form.recovery_dt.value | date:'Y-m-d'}}" />
+                                                    {% for error in form.recovery_dt.errors %}
                                                     <div class="text-danger">{{error}}</div>
                                                     {% endfor %}
                                                 </div>
                                             </div>
+                                            {% endif %}
                                             <div class="row form-group">
                                                 <div class="col-md-4 col-form-label">
                                                     <strong class="required-ast">Status</strong>
                                                 </div>
                                                 <div class="col-md-8">
                                                     <select class="form-control" required id="{{form.status.id_for_label}}" name="{{form.status.html_name}}">
-                                                        <option value="" disabled {% if None == form.status.value %}selected{% endif %}>Please choose status</option>
+                                                        <!-- <option value="" disabled {% if None == form.status.value %}selected{% endif %}>Please choose status</option> -->
                                                         {% for value, text in form.status.field.choices %}
                                                         <option value="{{value}}" {% if value == form.status.value %}selected{% endif %}>{{text}}</option>
                                                         {% endfor %}
@@ -214,8 +218,8 @@
                                                         <strong class="required-ast">Oscillation</strong>
                                                     </div>
                                                     <div class="col-md-8">
-                                                        <input class="form-control" required type="number" id="{{tForm.oscillation_num.id_for_label}}" name="{{tForm.oscillation_num.html_name}}" placeholder="Please enter oscillation" value="{{tForm.oscillation_num.value}}" />
-                                                        <p class="invalid-feedback">Oscillation is required</p>
+                                                        <input class="form-control" required type="number" id="{{tForm.oscillation_num.id_for_label}}" name="{{tForm.oscillation_num.html_name}}" placeholder="Please enter oscillation" value="{{tForm.oscillation_num.value|default_if_none:''}}" />
+                                                        <p class="invalid-feedback">Oscillation is required. Please enter a number</p>
                                                         {% for error in tForm.oscillation_num.errors %}
                                                         <div class="text-danger">{{error}}</div>
                                                         {% endfor %}
@@ -226,7 +230,7 @@
                                                         <strong class="required-ast">Time Allocated (s)</strong>
                                                     </div>
                                                     <div class="col-md-8">
-                                                        <input class="form-control" required type="number" id="{{tForm.time.id_for_label}}-taken" name="{{tForm.time_taken.html_name}}" placeholder="Please enter time allocated" value="{{tForm.time_taken.value}}" />
+                                                        <input class="form-control" required type="text" id="{{tForm.time.id_for_label}}-taken" name="{{tForm.time_taken.html_name}}" placeholder="Please enter time allocated" value="{{tForm.time_taken.value|default_if_none:''}}" />
                                                         <p class="invalid-feedback">Time allocated is required</p>
                                                         {% for error in tForm.time_taken.errors %}
                                                         <div class="text-danger">{{error}}</div>
@@ -246,7 +250,7 @@
             </div>
             <div class="text-center mt-3">
                 <button class="btn btn-outline-primary" id="add-case-form-submit-btn" type="button">Save</button>
-                <button class="btn btn-outline-warning" type="button">Cancel</button>
+                <a class="btn btn-outline-warning" href="{% url 'patient' patient_id=user.id %}">Cancel</a>
             </div>
         </form>
     </div>
@@ -281,6 +285,9 @@
 
     function registerRemovePartBtn() {
         $('.remove-part-btn').click((e) => {
+            var input = $("input[name='part-TOTAL_FORMS']");
+            var num = parseInt(input.val());
+            input.val(num - 1);
             var btn = e.target;
             var part = $(btn).attr("data-target");
             var target = part.replace("part", "target")
