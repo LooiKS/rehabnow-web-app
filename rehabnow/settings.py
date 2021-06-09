@@ -23,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = "=a&76=q&9cbj-ym0cz*613h6r18ehe^=9hpbl1g8c)+485%z83"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 
@@ -140,12 +140,12 @@ import os
 
 PROJECT_ROOT = os.path.dirname((os.path.abspath(__file__)))
 
-STATIC_ROOT = os.path.join(PROJECT_ROOT, "app/staticfolder")
+STATIC_ROOT = os.path.join(PROJECT_ROOT, "app\staticfolder")
 
 STATIC_URL = "/static/"
 
 # Extra lookup directories for collectstatic to find static files
-STATICFILES_DIRS = (os.path.join(PROJECT_ROOT, "app/static"),)
+STATICFILES_DIRS = (os.path.join(PROJECT_ROOT, "app\static"),)
 
 #  Add configuration for static files storage using whitenoise
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
