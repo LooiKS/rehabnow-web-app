@@ -53,11 +53,6 @@ class User(AbstractBaseUser):
         super().__init__(*args, **kwargs)
         self.has_perm = True
 
-    def __str__(self):
-        return ",".join(
-            (self.id, self.email, self.phone_num, self.ic_passport, self.dob.__str__())
-        )
-
     @property
     def is_staff(self):
         return self.is_admin
@@ -133,6 +128,7 @@ class City(models.Model):
 
     class Meta:
         db_table = "app_data_city"
+        unique_together = ("city", "state")
 
 
 class Case(models.Model):
@@ -147,19 +143,6 @@ class Case(models.Model):
         # default="",
         auto_now_add=True
     )
-
-    def __str__(self):
-        return ", ".join(
-            [
-                self.name,
-                self.description,
-                self.status,
-                self.patient_id.patient.id,
-                self.created_by,
-                self.created_dt.__str__(),
-                # self.parts,
-            ]
-        )
 
 
 class Part(models.Model):
@@ -197,9 +180,6 @@ class Target(models.Model):
     time_taken = models.FloatField(validators=[MinValueValidator(1)])
     part_id = models.ForeignKey(Part, related_name="targets", on_delete=models.CASCADE)
     id = models.AutoField(primary_key=True)
-
-    def __str__(self):
-        return self.oscillation_num.__str__()
 
 
 class PredictedRecovery(models.Model):

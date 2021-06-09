@@ -31,7 +31,7 @@
                                 <strong>First Name</strong>
                             </div>
                             <div class="col-md-6">
-                                <input class="form-control" value="{{ form.first_name.value }}" required type="text" id="first-name" name="first_name" placeholder="Please enter your first name" />
+                                <input class="form-control" value="{{ form.first_name.value|default_if_none:'' }}" required type="text" id="first-name" name="first_name" placeholder="Please enter your first name" />
                                 <p class="invalid-feedback">First name is required</p>
                                 {% for error in form.first_name.errors %}
                                 <div class="text-danger">{{error}}</div>
@@ -44,7 +44,7 @@
                                 <strong>Last Name</strong>
                             </div>
                             <div class="col-md-6">
-                                <input class="form-control" value="{{ form.last_name.value }}" required type="text" id="last-name" name="last_name" placeholder="Please enter your last name" />
+                                <input class="form-control" value="{{ form.last_name.value|default_if_none:'' }}" required type="text" id="last-name" name="last_name" placeholder="Please enter your last name" />
                                 <p class="invalid-feedback">Last name is required</p>
                                 {% for error in form.last_name.errors %}
                                 <div class="text-danger">{{error}}</div>
@@ -57,7 +57,7 @@
                                 <strong>IC Num/Passport</strong>
                             </div>
                             <div class="col-md-6">
-                                <input class="form-control" value="{{ form.ic_passport.value }}" required type="text" id="ic-num-passport" name="ic_passport" placeholder="Plaese enter your IC number or passport number" />
+                                <input class="form-control" value="{{ form.ic_passport.value|default_if_none:'' }}" required type="text" id="ic-num-passport" name="ic_passport" placeholder="Plaese enter your IC number or passport number" />
                                 <p class="invalid-feedback">IC Num/passport is required</p>
                                 {% for error in form.ic_passport.errors %}
                                 <div class="text-danger">{{error}}</div>
@@ -70,7 +70,7 @@
                                 <strong>Phone Number</strong>
                             </div>
                             <div class="col-md-6">
-                                <input class="form-control" value="{{ form.phone_num.value }}" required type="text" id="phone-number" name="phone_num" placeholder="Please enter your phone number" />
+                                <input class="form-control" value="{{ form.phone_num.value|default_if_none:'' }}" required type="text" id="phone-number" name="phone_num" placeholder="Please enter your phone number" />
                                 <p class="invalid-feedback">Phone Number is required</p>
                                 {% for error in form.phone_num.errors %}
                                 <div class="text-danger">{{error}}</div>
@@ -85,7 +85,7 @@
                             <div class="col-md-6">
                                 <select class="form-control" id="gender" name="gender" required>
                                     {% for value, text in form.gender.field.choices %}
-                                    <option value="{{value}}" {% if value == form.gender.value %} selected {% endif %} {% if value == "" %} disabled {% endif %}>
+                                    <option value="{{value}}" {% if value == form.gender.value|default_if_none:'' %} selected {% endif %} {% if not value %} disabled {% endif %}>
                                         {{text}}
                                     </option>
                                     {% endfor %}
@@ -117,7 +117,7 @@
                             <div class="col-md-6">
                                 <select class="form-control" id="nationality" name="nationality" required>
                                     {% for value, text in form.nationality.field.choices %}
-                                    <option value="{{value}}" {% if value == form.nationality.value %} selected {% endif %} {% if value == "" %} disabled {% endif %}>
+                                    <option value="{{value}}" {% if value == form.nationality.value|default_if_none:'' %} selected {% endif %} {% if value == "" %} disabled {% endif %}>
                                         {{text}}
                                     </option>
                                     {% endfor %}
@@ -138,7 +138,7 @@
                                 <strong>Address</strong>
                             </div>
                             <div class="col-md-6">
-                                <input class="form-control" id="address" name="address" value="{{ form.address.value }}" required placeholder="Please enter your address" />
+                                <input class="form-control" id="address" name="address" value="{{ form.address.value|default_if_none:'' }}" required placeholder="Please enter your address" />
                                 <p class="invalid-feedback">Address is required</p>
                                 {% for error in form.address.errors %}
                                 <div class="text-danger">{{error}}</div>
@@ -151,7 +151,7 @@
                                 <strong>Postcode</strong>
                             </div>
                             <div class="col-md-6">
-                                <input class="form-control" id="postcode" name="postcode" value="{{ form.postcode.value }}" required placeholder="Please enter your postcode" />
+                                <input class="form-control" id="postcode" name="postcode" value="{{ form.postcode.value|default_if_none:'' }}" required placeholder="Please enter your postcode" />
                                 <p class="invalid-feedback">Postcode is required</p>
                                 {% for error in form.postcode.errors %}
                                 <div class="text-danger">{{error}}</div>
@@ -166,7 +166,7 @@
                             <div class="col-md-6">
                                 <select class="form-control" id="country" name="country" value="Malaysia" required>
                                     {% for value, text in form.country.field.choices %}
-                                    <option value="{{value}}" {% if value == form.country.value %} selected {% endif %} {% if value == "" %} disabled {% endif %}>
+                                    <option value="{{value}}" {% if value == form.country.value|default_if_none:'' %} selected {% endif %} {% if value == "" %} disabled {% endif %}>
                                         {{text}}
                                     </option>
                                     {% endfor %}
@@ -185,7 +185,7 @@
                             <div class="col-md-6">
                                 <select class="form-control" value="Johor" id="state" name="state" required>
                                     {% for value, text in form.state.field.choices %}
-                                    <option value="{{value}}" {% if value == form.state.value %} selected {% endif %} {% if value == "" %} disabled {% endif %}>
+                                    <option value="{{value}}" {% if value == form.state.value|default_if_none:'' %} selected {% endif %} {% if value == "" %} disabled {% endif %}>
                                         {{text}}
                                     </option>
                                     {% endfor %}
@@ -204,7 +204,7 @@
                             <div class="col-md-6">
                                 <select class="form-control" id="city" name="city" required>
                                     {% for value, text in form.city.field.choices %}
-                                    <option value="{{value}}" {% if value == form.city.value %} selected {% endif %} {% if value == "" %} disabled {% endif %}>
+                                    <option value="{{value}}" {% if value == form.city.value|default_if_none:'' %} selected {% endif %} {% if value == "" %} disabled {% endif %}>
                                         {{text}}
                                     </option>
                                     {% endfor %}

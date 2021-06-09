@@ -7,6 +7,7 @@
 <style>
     .body-container {
         background-color: #eeeeee;
+        width: 100vw;
     }
 
     .container {
@@ -26,32 +27,44 @@
     }
 </style>
 
-<body class="body-container">
-    <table class="container">
+<body>
+    <table>
         <tr>
-            <td align="center" class="logo">
-                <img src="https://{{domain}}/static/images/logo.png" alt="logo" />
-            </td>
-        </tr>
-        <tr>
-            <td align="center">
-                <p><b>Hi, welcome to RehabNow.</b></p>
-                <br />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <p>We've just made your account - welcome aboard.</p>
-                <p>To continue using our platform, please verify your email address by clicking the link:
-                    <a href="http://{{domain}}{% url 'activate' uidb64=uid token=token %}">
-                        http://{{domain}}{% url 'activate' uidb64=uid token=token %}</a>
-                </p>
+            <td align="center" class="body-container">
+                <table>
+                    <tr>
+                        <td align="center" class="container">
+                            <table>
+                                <tr>
+                                    <td align="center" class="logo">
+                                        <img src="https://{{domain}}/static/images/logo.png" alt="logo" />
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td align="center">
+                                        <p><b>Hi, welcome to RehabNow.</b></p>
+                                        <br />
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <p>We've just made your account - welcome aboard.</p>
+                                        <p>To continue using our platform, please verify your email address by clicking the link:
+                                            <a href="http://{{domain}}{% url 'activate' uidb64=uid token=token %}">
+                                                http://{{domain}}{% url 'activate' uidb64=uid token=token %}</a>
+                                        </p>
 
-                <p>If you think this is a mistake, kindly ignore this email.</p>
+                                        <p>If you think this is a mistake, kindly ignore this email.</p>
 
-                <br />
-                <p>Thank you.</p>
-                <pre>The RehabNow Team</pre>
+                                        <br />
+                                        <p>Thank you.</p>
+                                        <pre>The RehabNow Team</pre>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
             </td>
         </tr>
     </table>
