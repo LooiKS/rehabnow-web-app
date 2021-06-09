@@ -82,6 +82,12 @@
         $("form").submit((event) => {
             $("#submit-spinner").addClass("d-block");
         });
+        $.ajaxSetup({
+            headers: {
+                contentType: "application/json",
+                accepts: "application/json"
+            }
+        });
     });
     function toggleSidebar() {
         var sidebar = document.getElementById('sidebar');

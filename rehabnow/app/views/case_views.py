@@ -173,6 +173,9 @@ def add_case(request, patient_id):
         #         )
         #     current_part_names.append(part_form["name"].data)
 
+        case_form.is_valid()
+        part_forms.is_valid()
+        target_forms.is_valid()
         if case_form.is_valid() and part_forms.is_valid() and target_forms.is_valid():
             case = case_form.save(commit=False)
             case.patient_id = patient
@@ -217,11 +220,11 @@ def add_case(request, patient_id):
         if (not p.is_bound and not t.is_bound) or (
             not p.cleaned_data.get("DELETE") and not t.cleaned_data.get("DELETE")
         ):
-            # print(t.errors.as_json())
-            # print(p.errors.as_json())
+            print(t.errors.as_json())
+            print(p.errors.as_json())
             forms.append((p, t))
 
-    # print(case_form.errors.as_json())
+    print(case_form.errors.as_json())
     # print(part_forms.management_form.fields)
     return render(
         request,
@@ -229,6 +232,8 @@ def add_case(request, patient_id):
         {
             "user": patient.patient,
             "case_form": case_form,
+            "part_forms": part_forms,
+            "target_forms": target_forms,
             "forms": forms,
             "cardTitle": "Add Case",
         },
