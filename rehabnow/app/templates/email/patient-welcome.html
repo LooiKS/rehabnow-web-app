@@ -1,21 +1,60 @@
 <html>
 
-<body>
-    <img src="https://{{domain}}/static/images/logo.svg" />
-    <p>Hi, welcome to RehabNow.</p>
-    <br />
-    <p>We've just made your account - welcome aboard.</p>
-    <p>To continue using our platform, please verify your email address by clicking the link:
-        <a href="http://{{domain}}{% url 'activate' uidb64=uid token=token %}">
-            http://{{domain}}{% url 'activate' uidb64=uid token=token %}</a>
-    </p>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <p>If you think this is a mistake, kindly ignore this email.</p>
+</head>
+<style>
+    .body-container {
+        background-color: #eeeeee;
+    }
 
-    <br />
-    <p>Thank you.</p>
-    <br />
-    <pre>The RehabNow Team</pre>
+    .container {
+        width: 60vw;
+        margin: auto;
+        background-color: #ffffff;
+        padding: 2rem;
+    }
+
+    p {
+        margin: 0.7rem 0;
+    }
+
+    .logo {
+        margin: auto;
+        text-align: center;
+    }
+</style>
+
+<body class="body-container">
+    <table class="container">
+        <tr>
+            <td align="center" class="logo">
+                <img src="https://{{domain}}/static/images/logo.svg" alt="logo" />
+            </td>
+        </tr>
+        <tr>
+            <td align="center">
+                <p><b>Hi, welcome to RehabNow.</b></p>
+                <br />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <p>We've just made your account - welcome aboard.</p>
+                <p>To continue using our platform, please verify your email address by clicking the link:
+                    <a href="http://{{domain}}{% url 'activate' uidb64=uid token=token %}">
+                        http://{{domain}}{% url 'activate' uidb64=uid token=token %}</a>
+                </p>
+
+                <p>If you think this is a mistake, kindly ignore this email.</p>
+
+                <br />
+                <p>Thank you.</p>
+                <pre>The RehabNow Team</pre>
+            </td>
+        </tr>
+    </table>
 </body>
 
 </html>

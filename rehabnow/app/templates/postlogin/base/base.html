@@ -27,8 +27,13 @@
         </div>
         <div class="mx-3 d-md-block d-none">
             <h6 class="m-0">
-                <strong>Welcome {{request.user.first_name}} {{request.user.last_name}}. Your last login is on
+                <strong>
+                    {% if not request.user.first_name %}
+                    Please complete your profile.
+                    {% else %}
+                    Welcome {{request.user.first_name}} {{request.user.last_name}}. Your last login is on
                     {{request.user.last_login}}
+                    {% endif %}
                 </strong>
             </h6>
         </div>
