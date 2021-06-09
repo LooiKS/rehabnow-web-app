@@ -346,7 +346,7 @@
 
     function getStates(iso2, callback) {
         $.ajax({
-            url: `/app/api/states/${iso2}?format=json`,
+            url: `/api/states/${iso2}?format=json`,
             method: "GET",
             success: callback
         });

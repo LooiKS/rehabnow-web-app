@@ -101,3 +101,4 @@ urlpatterns += [
     path("api/get-patient-performance/<patient_id>", views.get_patient_performance),
     path("api/get-patient-prediction/<patient_id>", views.get_patient_prediction),
 ]
+# handler404 = views.handler404

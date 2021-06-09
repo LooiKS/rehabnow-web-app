@@ -70,7 +70,7 @@
             if (isConfirmed) {
                 const form = document.createElement('form');
                 document.body.append(form);
-                form.action = `/app/patients/${id}/delete`
+                form.action = `/patients/${id}/delete`
                 form.submit();
             }
         });

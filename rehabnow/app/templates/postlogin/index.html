@@ -108,7 +108,7 @@
 
         $("#patient-category-spinner").addClass("d-block").removeClass("d-none");
         $.ajax({
-            url: `/app/api/get-patient-category`,
+            url: `/api/get-patient-category`,
             method: "GET",
             success: (data) => {
                 showPatientCategory(data);
@@ -276,7 +276,7 @@
     function fetchAndShowPerformance(pId) {
         $("#patient-performance-spinner").addClass("d-block").removeClass("d-none");
         $.ajax({
-            url: `/app/api/get-patient-performance/${pId}`,
+            url: `/api/get-patient-performance/${pId}`,
             method: "GET",
             success: (data) => {
 
@@ -312,7 +312,7 @@
 
 
         $.ajax({
-            url: `/app/api/get-patient-prediction/${pId}`,
+            url: `/api/get-patient-prediction/${pId}`,
             method: "GET",
             success: (data) => {
                 var dataset = data.map((part, index) => {

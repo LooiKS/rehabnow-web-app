@@ -1,0 +1,11 @@
+{% extends "postlogin/base/base.html" %}
+{% block main_content %}
+
+<div class="card">
+    <div class="card-body">
+        {% include 'postlogin/components/not-found.html' %}
+    </div>
+    <p class="text-center"><b><a href="{% url 'index' %}">Back to Dashboard</a></b></p>
+</div>
+
+{% endblock %}

@@ -134,7 +134,7 @@
                             <a href="{% url 'edit-case' patient_id=user.id case_id=case.id %}" class="btn btn-outline-success">
                                 <i class="fa fa-edit"></i> Edit
                             </a>
-                            <form action="/app/cases/{{user.id}}/{{case.id}}/delete" method="POST" class="d-inline">
+                            <form action="/cases/{{user.id}}/{{case.id}}/delete" method="POST" class="d-inline">
                                 {% csrf_token %}
                                 <button class="btn btn-outline-danger" name="case-id" value="{{case.id}}" type="button"><i class="fa fa-trash"></i> Delete</button>
                             </form>
