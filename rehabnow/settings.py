@@ -148,7 +148,7 @@ STATIC_URL = "/static/"
 STATICFILES_DIRS = (os.path.join(PROJECT_ROOT, "app\static"),)
 
 #  Add configuration for static files storage using whitenoise
-STATICFILES_STORAGE = "django.contrib.staticfiles.storage.ManifestStaticFilesStorage"
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 # STATIC_URL = "/static/"
 
