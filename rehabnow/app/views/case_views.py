@@ -241,14 +241,15 @@ def add_case(request, patient_id):
 
 
 @api_view(["GET"])
+@permission_required("app.mobile_permission")
 @permission_classes([IsAuthenticated])
 def get_cases(request):
     if request.GET.get("status"):
         cases = Case.objects.filter(
             status=request.GET["status"],
-            patient_id="R0000091",  # request.user.id
+            patient_id=request.user.id,  # request.user.id
         )
     else:
-        cases = Case.objects.filter(patient_id="R0000091")  # request.user.id
+        cases = Case.objects.filter(patient_id=request.user.id)  # request.user.id
 
     return Response(CaseSerializer(cases, many=True).data)

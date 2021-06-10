@@ -11,6 +11,30 @@ import re
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rehabnow.app.services.email_service import EmailService
+from django.contrib import messages
+
+
+def set_password(uidb64, token, password):
+    uid = urlsafe_base64_decode(uidb64).decode()
+    try:
+        user = User.objects.get(pk=uid)
+    except:
+        user = None
+
+    # check token <> User
+    if user is not None and default_token_generator.check_token(user, token):
+        if (
+            re.search("^(?=.*[^A-z\s\d][\\\^]?)(?=.*\d)(?=.*[a-zA-Z]).{8,}$", password)
+            is None
+        ):
+            error = "Password does not match the requirement of at least 8 characters (including alphabet, digit and special character)."
+        else:
+            user.set_password(password)
+            user.save()
+            error = ""
+    else:
+        error = "Link is invalid, please get a new reset link."
+    return error
 
 
 def forgot_password(request):
@@ -49,30 +73,31 @@ def reset_password(request, uidb64, token):
         print(request.POST)
         password = request.POST["password"]
         # decode uid, get User
-        uid = urlsafe_base64_decode(uidb64).decode()
-        try:
-            user = User.objects.get(pk=uid)
-        except:
-            user = None
-        print(user)
-        # check token <> User
-        if user is not None and default_token_generator.check_token(user, token):
-            if (
-                re.search(
-                    "^(?=.*[^A-z\s\d][\\\^]?)(?=.*\d)(?=.*[a-zA-Z]).{8,}$", password
-                )
-                is None
-            ):
-                error = "Password does not match the requirement of at least 8 characters (including alphabet, digit and special character)."
-            else:
-                user.set_password(password)
-                user.save()
-                return redirect("reset-password-success")
+        error = set_password(uidb64, token, password)
+        if not error:
+            return redirect("reset-password-success")
         else:
-            error = "Link is invalid, please get a new reset link."
-        return render(request, "prelogin/reset-password.html", {"error": error})
+            return render(request, "prelogin/reset-password.html", {"error": error})
     # GET
     return render(request, "prelogin/reset-password.html")
+
+
+def set_patient_first_password(request, uidb64, token):
+    if request.method == "POST":
+        print(request.POST)
+        password = request.POST["password"]
+        # decode uid, get User
+        error = set_password(uidb64, token, password)
+        if not error:
+            uid = urlsafe_base64_decode(uidb64).decode()
+            user = User.objects.get(pk=uid)
+            user.status = "active"
+            user.save()
+            messages.success(request, "Password set successfully")
+        else:
+            return render(request, "prelogin/set-password.html", {"error": error})
+    # GET
+    return render(request, "prelogin/set-password.html")
 
 
 def reset_password_success(request):

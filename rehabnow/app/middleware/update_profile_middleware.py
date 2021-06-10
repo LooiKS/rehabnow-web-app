@@ -10,12 +10,13 @@ def update_profile_middleware(get_response):
 
         response = get_response(request)
 
-        print(request.META.get("HTTP_ACCEPT"))
+        # print(request.META.get("HTTP_ACCEPT"))
 
         if (
-            not request.user.first_name
+            request.path.find("/api/") == -1
             and request.path.find("edit-profile") == -1
-            and request.path.find("/api/") == -1
+            and not request.user.is_anonymous
+            and not request.user.first_name
         ):
             return redirect("edit-profile")
 

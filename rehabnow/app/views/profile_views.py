@@ -130,12 +130,14 @@ class EditProfile(View):
 
 
 @api_view(["GET"])
+@permission_required("app.mobile_permission")
 @permission_classes([IsAuthenticated])
 def get_profile(request):
     return Response(UserSerializer(request.user).data)
 
 
 @api_view(["POST"])
+@permission_required("app.mobile_permission")
 @permission_classes([IsAuthenticated])
 def save_profile(request):
     status = "failed"
@@ -164,6 +166,10 @@ def save_profile(request):
                 request.FILES["photo"], puser.id, request.FILES["photo"].name
             )
             puser.photo = pis.save_and_delete(puser.photo)
+
+        if form.cleaned_data["new_password"]:
+            puser.set_password(form.cleaned_data["new_password"])
+
         puser.save()
         status = "success"
 

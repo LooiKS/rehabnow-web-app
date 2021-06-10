@@ -70,15 +70,23 @@ def rest_logout(request):
 def rest_login(request):
     data = request.data
     print(data)
-    users = User.objects.all()
+    try:
+        user = User.objects.get(email=data["email"])
+    except:
+        return Response(
+            {
+                "status": "failed",
+                "errorMessage": "User not found.",
+            }
+        )
     # for u in users:
     # u.set_password("aaa111!!!")
     # u.save()
-    user = django_authenticate(
-        request, username=data["email"], password=data["password"]
-    )
-    if user is not None:
-        if user.status == "active":
+    if user.status == "active":
+        user = django_authenticate(
+            request, username=data["email"], password=data["password"]
+        )
+        if user is not None:
             token, created = Token.objects.get_or_create(user=user)
             return Response(
                 {
@@ -93,13 +101,14 @@ def rest_login(request):
             return Response(
                 {
                     "status": "failed",
-                    "errorMessage": "The account is not activated. Check your email to activate.",
+                    "errorMessage": "Wrong credential.",
                 }
             )
+
     else:
         return Response(
             {
                 "status": "failed",
-                "errorMessage": "Wrong credential.",
+                "errorMessage": "The account is not activated. Check your email to activate.",
             }
         )

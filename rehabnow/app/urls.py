@@ -30,6 +30,11 @@ urlpatterns = [
         "reset-password/<uidb64>/<token>", views.reset_password, name="reset-password"
     ),
     path(
+        "set-password/<uidb64>/<token>",
+        views.set_patient_first_password,
+        name="set-password",
+    ),
+    path(
         "reset-password-success",
         views.reset_password_success,
         name="reset-password-success",

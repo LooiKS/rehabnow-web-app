@@ -58,9 +58,16 @@ class User(AbstractBaseUser):
         return self.is_admin
 
     def has_perms(self, perm):
-        print(self.id)
         print(Physiotherapist.objects.filter(physiotherapist__id=self.id).exists())
-        return Physiotherapist.objects.filter(physiotherapist__id=self.id).exists()
+        if len(perm) > 0:
+            if perm[0] == "app.web_permission":
+                return Physiotherapist.objects.filter(
+                    physiotherapist__id=self.id
+                ).exists()
+            else:  # if perm[0] == "app.mobile_permission":
+                return Patient.objects.filter(patient__id=self.id).exists()
+        else:
+            return True
 
     def has_module_perms(self, app_label):
         return True

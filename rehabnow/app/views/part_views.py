@@ -1,3 +1,4 @@
+from django.contrib.auth.decorators import permission_required
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -6,6 +7,7 @@ from rehabnow.app.serializers import PartSerializer
 
 
 @api_view(["GET"])
+@permission_required("app.mobile_permission")
 @permission_classes([IsAuthenticated])
 def get_parts(request, case_id):
     # todo: change pid
@@ -13,7 +15,7 @@ def get_parts(request, case_id):
     return Response(
         PartSerializer(
             Part.objects.prefetch_related("targets").filter(
-                case_id__patient_id="R0000091", case_id=case_id
+                case_id__patient_id=request.user.id, case_id=case_id
             ),
             many=True,
         ).data

@@ -1,3 +1,4 @@
+from django.contrib.auth.decorators import permission_required
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -16,8 +17,11 @@ from django.utils.timezone import make_aware
 
 
 @api_view(["GET"])
+@permission_required("app.mobile_permission")
 @permission_classes([IsAuthenticated])
 def get_exercises_records(request):
+    print(request.user.id)
+    print(Part.objects.filter(case_id__patient_id=request.user.id))
     return Response(
         ExerciseRecordsSerializer(
             Part.objects.filter(case_id__patient_id=request.user.id)
@@ -31,14 +35,21 @@ def get_exercises_records(request):
 
 
 @api_view(["GET"])
+@permission_required("app.mobile_permission")
 @permission_classes([IsAuthenticated])
 def get_exercises(request, part_id):
     return Response(
-        ExerciseSerializer(Exercise.objects.filter(part_id=part_id), many=True).data
+        ExerciseSerializer(
+            Exercise.objects.filter(
+                part_id=part_id, part_id__case_id__patient_id=request.user.id
+            ),
+            many=True,
+        ).data
     )
 
 
 @api_view(["POST"])
+@permission_required("app.mobile_permission")
 @permission_classes([IsAuthenticated])
 def upload_exercise(request):
     status = "success"
@@ -46,7 +57,9 @@ def upload_exercise(request):
     oscillation_num = int(request.data["oscillationNum"])
     time_taken = request.data["timeTaken"]
 
-    target = Target.objects.get(part_id=part_id)
+    target = Target.objects.get(
+        part_id=part_id, part_id__case_id__patient_id=request.user.id
+    )
     done = target.oscillation_num <= oscillation_num
 
     Exercise.objects.create(
