@@ -1,7 +1,14 @@
 {% extends "postlogin/base/base.html" %}
 {% load static %}
 {% block title %}Profile{% endblock %}
+
+{% block breadcrumbs %}
+<li class="breadcrumb-item"><a href="{% url 'profile' %}">Profile</a></li>
+<li class="breadcrumb-item active" aria-current="page">Edit Profile</li>
+{% endblock %}
+
 {% block main_content %}
+
 <div class="">
     <form action="" method="POST" id="edit-profile-form" enctype="multipart/form-data" novalidate>
         {% csrf_token %}
@@ -17,12 +24,15 @@
                             <img src="{% get_media_prefix %}{{form.instance.photo}}" class="rounded-circle" width="100" id="profile-img" alt="Profile Image" />
                             <input type="file" hidden id="photo" name="photo" />
                         </div>
-                        <div class="row">
+                        {% for error in form.photo.errors %}
+                        <div class="text-danger text-center">{{error}}</div>
+                        {% endfor %}
+                        <div class="row mt-3">
                             <div class="col-md-4">
                                 <strong>Email Address</strong>
                             </div>
                             <div class="col-md-6">
-                                <span>{{form.email.value}}</span>
+                                <span>{{user.email}}</span>
                             </div>
                         </div>
                         <hr />
@@ -185,8 +195,8 @@
                             <div class="col-md-6">
                                 <select class="form-control" value="Johor" id="state" name="state" required>
                                     {% for value, text in form.state.field.choices %}
-                                    <option value="{{value}}" {% if value == form.state.value|default_if_none:'' %} selected {% endif %} {% if value == "" %} disabled {% endif %}>
-                                        {{text}}
+                                    <option value="{{value}}" {% if value|slugify == form.state.value|slugify|default_if_none:'' %} selected {% endif %} {% if value == "" %} disabled {% endif %}>
+                                        {{text}} {{value}} {{form.state.value}}
                                     </option>
                                     {% endfor %}
                                 </select>

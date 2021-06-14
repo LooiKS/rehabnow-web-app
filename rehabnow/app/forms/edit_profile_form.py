@@ -1,4 +1,5 @@
 from django import forms
+from django.core.exceptions import ValidationError
 from rehabnow.app.models import Country, City, State, User
 
 
@@ -93,13 +94,12 @@ class EditProfileForm(forms.ModelForm):
             "state",
             "city",
             "email",
-            "photo",
+            # "photo",
         ]
 
     def __init__(self, *args, **kwargs):
         super(EditProfileForm, self).__init__(*args, **kwargs)
-        print(self._meta.model.id)
-        # print(args.state, kwargs)
+
         if self["country"].value():
             self.fields["state"].choices = list(
                 map(
@@ -107,20 +107,25 @@ class EditProfileForm(forms.ModelForm):
                     State.objects.filter(iso2=self["country"].value()),
                 )
             )
-        print(self.fields["city"].choices)
+
         if self["state"].value():
-            # self.data["state"] = 12
-            print(self["state"].value())
             self.fields["city"].choices = list(
                 map(
                     lambda x: (x.city, x.city),
                     City.objects.filter(state=self["state"].value()),
                 )
             )
-        print(self.fields["city"].choices)
 
     def __str__(self):
         return ",".join(self.get_initial_for_field)
+
+    def clean_photo(self):
+        photo = self.cleaned_data.get("photo")
+        if photo:
+            print(photo.name)
+            if photo.size > 5 * 1024 * 1024:
+                raise ValidationError("Size exceed 5MB", "exceed_max_size")
+        return photo
 
 
 class PatientForm(EditProfileForm):

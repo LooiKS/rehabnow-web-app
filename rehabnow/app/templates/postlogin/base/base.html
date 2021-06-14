@@ -48,13 +48,38 @@
         <div class="p-3" id="main-content">
             <div style="min-height: calc(100vh - 9rem);">
                 {% for message in messages %}
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <!-- <div class="alert alert-success alert-dismissible fade show" role="alert">
                     <strong>{{message}}</strong>
                     <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
+                </div> -->
+                <div class="toast" style="position: fixed; top: 1rem; right: 1rem; z-index: 10000;min-width: 200px;" data-delay="5000">
+                    <div class="toast-header">
+                        <strong class="mr-auto">RehabNow</strong>
+                        <small>Just now</small>
+                        <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="toast-body">
+                        <strong>{{message}}</strong>
+                    </div>
                 </div>
                 {% endfor %}
+                <nav aria-label="breadcrumb shadow-sm">
+                    <ol class="breadcrumb">
+                        {% with request.resolver_match.view_name as view_name %}
+                        {% if view_name == 'index' %}
+                        <li class="breadcrumb-item active" aria-current="page">Dashboard</li>
+                        {% else %}
+                        <li class="breadcrumb-item"><a href="{% url 'index' %}">Dashboard</a></li>
+                        {% endif %}
+                        {% endwith %}
+                        {% block breadcrumbs %}
+                        {% endblock %}
+                    </ol>
+                </nav>
                 {% block main_content %}
                 {% endblock %}
             </div>
@@ -78,6 +103,7 @@
 
 <script>
     $(function () {
+        $(".toast").toast("show")
         $("#year").text(new Date().getFullYear());
         $("form").submit((event) => {
             $("#submit-spinner").addClass("d-block");

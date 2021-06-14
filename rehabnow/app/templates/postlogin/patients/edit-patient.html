@@ -1,6 +1,12 @@
 {% extends "postlogin/base/base.html" %}
 {% load static %}
 {% block title %}Profile{% endblock %}
+
+{% block breadcrumbs %}
+<li class="breadcrumb-item"><a href="{% url 'patients' %}">Patients</a></li>
+<li class="breadcrumb-item active" aria-current="page">Edit Patient</li>
+{% endblock %}
+
 {% block main_content %}
 <div class="">
     <form action="" method="POST" id="edit-profile-form" enctype="multipart/form-data" novalidate>
@@ -14,7 +20,7 @@
                             <div class="edit-profile-overlay">
                                 <label class="edit-photo-content" for="photo">Change photo</label>
                             </div>
-                            <img src="{% get_media_prefix %}{{form.photo.value}}" class="rounded-circle" width="100" id="profile-img" />
+                            <img src="{% get_media_prefix %}{{form.instance.photo}}" class="rounded-circle" width="100" id="profile-img" alt="Profile Image" />
                             <input type="file" hidden id="photo" name="photo" />
                         </div>
                         <div class="row">

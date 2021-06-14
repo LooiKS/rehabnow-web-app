@@ -1,6 +1,12 @@
 {% extends "postlogin/base/base.html" %}
 {% load static %}
 {% block title %}Profile{% endblock %}
+
+
+{% block breadcrumbs %}
+<li class="breadcrumb-item active" aria-current="page">Patients</li>
+{% endblock %}
+
 {% block main_content %}
 <div class="card">
     <div class="card-body">
@@ -34,7 +40,7 @@
                 <td>{{forloop.counter}}</td>
                 <td><a href="{% url 'patient' patient_id=user.patient.id %}">{{user.patient.id}}</a></td>
                 <td>
-                    <img src="{% get_media_prefix %}{{user.patient.photo}}" width="30" />
+                    <img src="{% get_media_prefix %}{{user.patient.photo}}" class="rounded-circle" width="30" />
                     <span>{{user.patient.first_name}} {{user.patient.last_name}}</span>
                 </td>
                 <td>{{user.patient.gender}}</td>

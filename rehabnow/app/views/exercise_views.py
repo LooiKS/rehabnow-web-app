@@ -1,4 +1,5 @@
 from django.contrib.auth.decorators import permission_required
+from django.db.models.query import Prefetch
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -20,15 +21,12 @@ from django.utils.timezone import make_aware
 @permission_required("app.mobile_permission")
 @permission_classes([IsAuthenticated])
 def get_exercises_records(request):
-    print(request.user.id)
-    print(Part.objects.filter(case_id__patient_id=request.user.id))
+    exercises = Exercise.objects.order_by("created_dt")
     return Response(
         ExerciseRecordsSerializer(
-            Part.objects.filter(case_id__patient_id=request.user.id)
-            # .order_by(
-            #     "exercises_created_dt"
-            # )
-            ,
+            Part.objects.prefetch_related(Prefetch("exercises", exercises)).filter(
+                case_id__patient_id=request.user.id
+            ),
             many=True,
         ).data
     )
@@ -63,7 +61,6 @@ def upload_exercise(request):
     done = target.oscillation_num <= oscillation_num
 
     Exercise.objects.create(
-        # created_dt=time.time(),
         oscillation_num=oscillation_num,
         time_taken=time_taken,
         part_id_id=part_id,

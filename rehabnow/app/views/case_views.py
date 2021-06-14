@@ -42,7 +42,6 @@ def delete_cases(request, case_id, patient_id):
 @login_required
 @permission_required("app.web_permission")
 def edit_case(request, patient_id, case_id):
-    # print(request.POST)
     try:
         patient = Patient.objects.get(
             physiotherapist=request.user.id, patient=patient_id
@@ -52,7 +51,6 @@ def edit_case(request, patient_id, case_id):
         targets_id = list(case.parts.values_list("targets__id", flat=True))
     except:
         return redirect("patient", patient_id=patient_id)
-    from django.db.models.query import QuerySet
 
     PartFormSet = modelformset_factory(
         form=PartForm, model=Part, can_delete=True, extra=0
@@ -64,11 +62,12 @@ def edit_case(request, patient_id, case_id):
     q = Target.objects.none()
     for p in parts:
         q |= p.targets.all()
-    # print(parts)
+
     if request.method == "POST":
         case_form = CaseForm(request.POST, prefix="case", instance=case)
         part_forms = PartFormSet(prefix="part", queryset=parts, data=request.POST)
         target_forms = TargetFormSet(prefix="target", queryset=q, data=request.POST)
+
         if case_form.is_valid() and part_forms.is_valid() and target_forms.is_valid():
             case = case_form.save(commit=False)
             case.status = "Recovered"
@@ -80,8 +79,6 @@ def edit_case(request, patient_id, case_id):
                 ):
                     pass
                 if part_form.cleaned_data.get("DELETE"):
-                    # print("delete")
-                    # print(part_form.cleaned_data["id"].id)
                     Part.objects.get(pk=part_form.cleaned_data["id"].id).delete()
                     continue
                 else:
@@ -109,15 +106,10 @@ def edit_case(request, patient_id, case_id):
 
     forms = []
     for p, t in map(lambda x, y: (x, y), part_forms, target_forms):
-        print(p)
-        print(t)
-        # print(t.errors.as_json())
-        # print(p.errors.as_json())
         if (not p.is_bound and not t.is_bound) or (
             not p.cleaned_data.get("DELETE") and not t.cleaned_data.get("DELETE")
         ):
             forms.append((p, t))
-            # # print(t.cleaned_data)
 
     return render(
         request,
@@ -136,51 +128,28 @@ def edit_case(request, patient_id, case_id):
 @login_required
 @permission_required("app.web_permission")
 def add_case(request, patient_id):
-    """
-    cannot add body part that is currently "Under Treatment"
-    """
     try:
         patient = Patient.objects.get(
             physiotherapist=request.user.id, patient=patient_id
         )
-        active_parts = Part.objects.filter(
-            status="Under Treatment", case_id__patient_id=patient
-        )
-        # print(active_parts)
     except:
         return redirect("patients")
 
-    # print("initiate formsets")
     PartFormSet = formset_factory(PartForm, can_delete=True, min_num=1, extra=0)
     TargetFormSet = formset_factory(TargetForm, can_delete=True, min_num=1, extra=0)
 
     if request.method == "POST":
-        # print(request.POST)
         case_form = CaseForm(request.POST, prefix="case")
         part_forms = PartFormSet(request.POST, prefix="part")
         target_forms = TargetFormSet(request.POST, prefix="target")
 
-        # current_part_names = list(
-        #     Part.objects.filter(
-        #         status="Under Treatment", case_id__patient_id=patient
-        #     ).values_list("name", flat=True)
-        # )
-
-        # for part_form in part_forms:
-        #     if part_form["name"].data in current_part_names:
-        #         part_form.add_error(
-        #             "name", ValidationError("The name is chosen", "redundant")
-        #         )
-        #     current_part_names.append(part_form["name"].data)
-
         case_form.is_valid()
         part_forms.is_valid()
         target_forms.is_valid()
+
         if case_form.is_valid() and part_forms.is_valid() and target_forms.is_valid():
             case = case_form.save(commit=False)
             case.patient_id = patient
-            # case.created_dt = time.time()
-            # print(time.time())
             case.created_by = request.user.pk
             case.status = "Under Treatment"
             case.save()
@@ -189,43 +158,30 @@ def add_case(request, patient_id):
                 if not p.cleaned_data.get("DELETE") and not t.cleaned_data.get(
                     "DELETE"
                 ):
-                    # print(p.cleaned_data)
-                    # print(t.cleaned_data)
                     part = p.save(commit=False)
-                    # part.created_dt = time.time()
                     part.created_by = request.user.pk
                     part.case_id = case
                     part.save()
+
                     target = t.save(commit=False)
-                    # target.created_dt = time.time()
                     target.created_by = request.user.pk
                     target.part_id = part
                     target.save()
             messages.success(request, "New case added")
             return redirect("patient", patient_id=patient_id)
 
-        # print(part_forms.errors)
-        # print(target_forms.errors)
-        # print(target_forms.deleted_forms)
-
     else:
         case_form = CaseForm(prefix="case")
-        # print("partformset")
         part_forms = PartFormSet(prefix="part", initial=[{"patient": patient}])
         target_forms = TargetFormSet(prefix="target")
 
     forms = []
-    # print(map(lambda x, y: (x, y), part_forms, target_forms))
     for p, t in map(lambda x, y: (x, y), part_forms, target_forms):
         if (not p.is_bound and not t.is_bound) or (
             not p.cleaned_data.get("DELETE") and not t.cleaned_data.get("DELETE")
         ):
-            print(t.errors.as_json())
-            print(p.errors.as_json())
             forms.append((p, t))
 
-    print(case_form.errors.as_json())
-    # print(part_forms.management_form.fields)
     return render(
         request,
         "postlogin/cases/add-case.html",
@@ -247,9 +203,9 @@ def get_cases(request):
     if request.GET.get("status"):
         cases = Case.objects.filter(
             status=request.GET["status"],
-            patient_id=request.user.id,  # request.user.id
+            patient_id=request.user.id,
         )
     else:
-        cases = Case.objects.filter(patient_id=request.user.id)  # request.user.id
+        cases = Case.objects.filter(patient_id=request.user.id)
 
     return Response(CaseSerializer(cases, many=True).data)

@@ -1,13 +1,14 @@
+from rehabnow.app.forms.physiotherapist_form import PhysiotherapistForm
 from rehabnow.app.models import User, Physiotherapist, sequence_id
 from django.shortcuts import render, redirect
 from django.template.loader import render_to_string
 from django.core.mail import EmailMessage
 from django.conf import settings
-import re
 from django.utils.encoding import force_bytes
 from django.contrib.sites.shortcuts import get_current_site
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from django.contrib.auth.tokens import default_token_generator
+from rehabnow.app.services.email_service import EmailService
 
 
 def activate(request, uidb64, token):
@@ -61,56 +62,34 @@ def resend_activation_link_success(request):
 
 
 def register(request):
+    form = PhysiotherapistForm()
     if request.method == "POST":
         email = request.POST["email"]
         password = request.POST["password"]
-        error = ""
-        print(re.search("^(?=.*[^A-z\s\d][\\\^]?)(?=.*\d)(?=.*[a-zA-Z]).{8,}$", ""))
-        if re.search("[\w\.-]+@[\w\.-]+\.\w{2,4}", email) is None:
-            error = "Email address is not valid."
-        elif (
-            re.search("^(?=.*[^A-z\s\d][\\\^]?)(?=.*\d)(?=.*[a-zA-Z]).{8,}$", password)
-            is None
-        ):
-            error = "Password does not match the requirement of at least 8 characters (including alphabet, digit and special character)."
-        else:
-            try:
-                user = User.objects.create(
-                    email=email, id=sequence_id(), status="unverified"
-                )
-                user.set_password(password)
-                user.save()
-                p = Physiotherapist.objects.create(physiotherapist=user)
-                p.save()
-            except Exception as e:
-                print(e)
-                error = "Email address is registered."
 
-        if error == "":
-            message = render_to_string(
-                "email/registration.html",
-                {
-                    "domain": get_current_site(request),
-                    "uid": urlsafe_base64_encode(force_bytes(user.pk)),
-                    "token": default_token_generator.make_token(user),
-                },
+        form = PhysiotherapistForm(request.POST)
+
+        if form.is_valid():
+            user = User.objects.create(
+                email=form.cleaned_data["email"], id=sequence_id(), status="unverified"
             )
-            email = EmailMessage(
-                "Welcome To RehabNow!",
-                message,
-                settings.DEFAULT_FROM_EMAIL,
-                [request.POST["email"]],
-                [settings.DEFAULT_FROM_EMAIL],
+            user.set_password(form.cleaned_data["password"])
+            user.save()
+            p = Physiotherapist.objects.create(physiotherapist=user)
+            p.save()
+
+            context = {
+                "domain": get_current_site(request),
+                "uid": urlsafe_base64_encode(force_bytes(user.pk)),
+                "token": default_token_generator.make_token(user),
+            }
+            emailService = EmailService(
+                "registration.html", context, "Welcome To RehabNow!", user.email
             )
-            email.content_subtype = "html"
-            email.send()
+            emailService.send_email()
             return redirect("registration-success")
-        else:
-            return render(
-                request, "prelogin/register.html", {"email": email, "error": error}
-            )
 
-    return render(request, "prelogin/register.html")
+    return render(request, "prelogin/register.html", {"form": form})
 
 
 def registration_success(request):

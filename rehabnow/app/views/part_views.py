@@ -10,8 +10,6 @@ from rehabnow.app.serializers import PartSerializer
 @permission_required("app.mobile_permission")
 @permission_classes([IsAuthenticated])
 def get_parts(request, case_id):
-    # todo: change pid
-    # print(request.GET["status"])
     return Response(
         PartSerializer(
             Part.objects.prefetch_related("targets").filter(

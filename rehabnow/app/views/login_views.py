@@ -16,11 +16,11 @@ from django.contrib.sites.shortcuts import get_current_site
 
 
 def login(request):
-    print(f"R{108:07}")
     if request.method == "POST":
         email = request.POST["email"]
         password = request.POST["password"]
         user = django_authenticate(request, username=email, password=password)
+
         if user is not None:
             if user.status == "active":
                 django_login(request, user)
@@ -46,10 +46,8 @@ def login(request):
                 {"email": email, "error": "Wrong credential. Please try again."},
             )
 
-    print(request.user.is_authenticated)
     if request.user.is_authenticated is True:
         return redirect("index")
-    print(request.GET)
     return render(request, "prelogin/login.html")
 
 
@@ -69,7 +67,6 @@ def rest_logout(request):
 @api_view(["POST"])
 def rest_login(request):
     data = request.data
-    print(data)
     try:
         user = User.objects.get(email=data["email"])
     except:
@@ -79,9 +76,7 @@ def rest_login(request):
                 "errorMessage": "User not found.",
             }
         )
-    # for u in users:
-    # u.set_password("aaa111!!!")
-    # u.save()
+
     if user.status == "active":
         user = django_authenticate(
             request, username=data["email"], password=data["password"]

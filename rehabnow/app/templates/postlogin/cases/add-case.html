@@ -1,6 +1,14 @@
 {% extends "postlogin/patients/view-patient.html" %}
 {% load static %}
 {% block title %}Cases{% endblock %}
+
+{% block breadcrumbs %}
+<li class="breadcrumb-item"><a href="{% url 'patients' %}">Patients</a></li>
+<li class="breadcrumb-item"><a href="{% url 'patient' patient_id=user.id %}">Patient - {{user.id}}</a></li>
+<li class="breadcrumb-item active" aria-current="page">{% if cardTitle == 'Add Case' %} Add case {% else %} Edit Case {% endif %}
+</li>
+{% endblock %}
+
 {% block case_content %}
 <div class="card mt-3">
     <div class="card-body">

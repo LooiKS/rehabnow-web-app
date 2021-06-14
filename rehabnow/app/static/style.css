@@ -103,19 +103,30 @@ body {
   height: 100vh;
   background-size: cover;
   text-align: center;
-  padding: 13em 0;
+}
+
+.prelogin-center {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 
 .login-wrapper {
-  /* position: absolute; */
-  /* top: calc(50vh - 15rem); */
-  /* left: calc(50vw - 15rem); */
-  /* height: 30rem; */
   color: white;
   background-color: rgba(0, 0, 0, 0.281);
-  /* width: 30rem; */
-  border-radius: 5%;
   padding: 1.5rem;
+}
+
+.form-control:focus {
+  border-color: rgba(0, 153, 255, 0.8);
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset,
+    0 0 8px rgba(0, 153, 255, 0.6);
+  outline: 0 none;
+}
+
+.form-control {
+  /* border-radius: 50rem !important; */
 }
 
 /* no-validate input */

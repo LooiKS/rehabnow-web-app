@@ -32,7 +32,7 @@ class User(AbstractBaseUser):
     dob = models.DateField("Date of Birth", null=True)
     first_name = models.CharField(max_length=50, null=True)
     gender = models.CharField(max_length=10, null=True)
-    ic_passport = models.CharField(max_length=20, null=True)
+    ic_passport = models.CharField(max_length=20, null=True, unique=True)
     last_name = models.CharField(max_length=100, null=True)
     nationality = models.CharField(max_length=50, null=True)
     phone_num = models.CharField(max_length=20, null=True)

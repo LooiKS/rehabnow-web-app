@@ -42,6 +42,7 @@ class ProfileImageService:
         )
         absolute_filepath = settings.MEDIA_ROOT + filepath + filename
         cropped.save(absolute_filepath)
+        print(filepath + filename)
         return filepath + filename
 
     def save_and_delete(self, ori_photo):

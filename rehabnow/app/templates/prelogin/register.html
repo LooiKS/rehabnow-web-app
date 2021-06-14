@@ -1,11 +1,9 @@
 {% extends "prelogin/base.html" %}
 {% block title %}Registration{% endblock %}
-{% block main_content %}
-<h3 class="font-weight-bold text-center">RehabNow Physiotherapist Portal</h3>
+{% block subtitle %}
 <p class="text-center">Register as a physiotherapist</p>
-<div class="alert-danger">
-    <p>{{error}}</p>
-</div>
+{% endblock %}
+{% block main_content %}
 <div>
     <form method="POST" id="register-form" class="" novalidate>
         {% csrf_token %}
@@ -13,17 +11,17 @@
             <div class="input-group-prepend">
                 <div class="input-group-text"><i class="fa fa-envelope"></i></div>
             </div>
-            <input id="email" class="form-control form-control-lg" type="email" placeholder="Email" name="email"
-                value="{{email}}" pattern="\b[\w\.-]+@[\w\.-]+\.\w{2,4}\b" required />
+            <input id="email" class="form-control form-control-lg" type="email" placeholder="Email" name="email" value="{{form.email.value|default_if_none:''}}" pattern="\b[\w\.-]+@[\w\.-]+\.\w{2,4}\b" required />
             <div class="invalid-feedback">Please enter an email address.</div>
         </div>
+        {% for error in form.email.errors %}
+        <div class="bg-danger mt-3">{{error}}</div>
+        {% endfor %}
         <div class="input-group my-3" id="password-div">
             <div class="input-group-prepend">
                 <div class="input-group-text"><i class="fa fa-lock"></i></div>
             </div>
-            <input id="password" class="form-control form-control-lg" type="password" placeholder="Password"
-                name="password" required style="border-right: 0;"
-                pattern="^(?=.*[^A-z\s\d][\\\^]?)(?=.*\d)(?=.*[a-zA-Z]).{8,}$" />
+            <input id="password" class="form-control form-control-lg" type="password" placeholder="Password" name="password" required style="border-right: 0;" pattern="^(?=.*[^A-z\s\d][\\\^]?)(?=.*\d)(?=.*[a-zA-Z]).{8,}$" />
             <div class="input-group-append">
                 <div class="input-group-text" style="border-left: 0;background-color: white;padding: 0;">
                     <button id="password-toggler" class="shadow-none btn" type="button">
@@ -33,13 +31,15 @@
             </div>
             <div class="invalid-feedback">Please enter password with at least 8 characters (including alphabet, digit
                 and special character).</div>
+            {% for error in form.password.errors %}
+            <div class="bg-danger mt-3">{{error}}</div>
+            {% endfor %}
         </div>
         <div class="input-group my-3" id="retype-password-div">
             <div class="input-group-prepend">
                 <div class="input-group-text"><i class="fa fa-lock"></i></div>
             </div>
-            <input id="retypePassword" class="form-control form-control-lg" type="password"
-                placeholder="Confirm Password" name="retypePassword" required style="border-right: 0;" />
+            <input id="retypePassword" class="form-control form-control-lg" type="password" placeholder="Confirm Password" name="retypePassword" required style="border-right: 0;" />
             <div class="input-group-append">
                 <div class="input-group-text" style="border-left: 0;background-color: white;padding: 0;">
                     <button id="password-toggler" class="shadow-none btn" type="button">
@@ -53,7 +53,7 @@
             <button class="btn btn-primary">Register</button>
         </div>
     </form>
-    <hr />
+    <hr class="bg-light" />
     <div class="text-center">
         <a href="{% url 'login' %}" class="font-weight-bold">Login Here<i class="fa fa-arrow-right ml-2"></i></a>
     </div>
@@ -95,14 +95,14 @@
             let emailElem = form.email;
             let passwordElem = form.password;
             let retypePasswordElem = form.retypePassword;
-            if (!/\b[\w\.-]+@[\w\.-]+\.\w{2,4}\b/.test(emailElem.value)) {
-                emailElem.setCustomValidity('false')
-            } else if (passwordElem.value !== retypePasswordElem.value) {
-                retypePasswordElem.setCustomValidity('false')
-            } else {
-                emailElem.setCustomValidity('')
-                retypePasswordElem.setCustomValidity('')
-            }
+            // if (!/\b[\w\.-]+@[\w\.-]+\.\w{2,4}\b/.test(emailElem.value)) {
+            //     emailElem.setCustomValidity('false')
+            // } else if (passwordElem.value !== retypePasswordElem.value) {
+            //     retypePasswordElem.setCustomValidity('false')
+            // } else {
+            //     emailElem.setCustomValidity('')
+            //     retypePasswordElem.setCustomValidity('')
+            // }
             if (!form.checkValidity()) {
                 e.preventDefault();
                 e.stopPropagation();

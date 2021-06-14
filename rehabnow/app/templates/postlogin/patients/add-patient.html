@@ -1,6 +1,12 @@
 {% extends "postlogin/base/base.html" %}
 {% load static %}
 {% block title %}Profile{% endblock %}
+
+{% block breadcrumbs %}
+<li class="breadcrumb-item"><a href="{% url 'patients' %}">Patients</a></li>
+<li class="breadcrumb-item active" aria-current="page">Add Patient</li>
+{% endblock %}
+
 {% block main_content %}
 <div class="">
     <form action="" method="POST" id="edit-profile-form" enctype="multipart/form-data" novalidate>

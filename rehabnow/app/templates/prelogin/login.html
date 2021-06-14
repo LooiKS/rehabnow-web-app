@@ -1,10 +1,6 @@
 {% extends "prelogin/base.html" %}
 {% block title %}Login{% endblock %}
 {% block main_content %}
-<h3 class="text-center font-weight-bold">RehabNow Physiotherapist Portal</h3>
-<div class="alert-danger">
-    <p>{{error}}</p>
-</div>
 <form action="" method="POST">
     {% csrf_token %}
     <input type="text" hidden value="{{ request.GET.next }}">
@@ -33,7 +29,7 @@
         <button class="btn btn-primary">Login</button>
     </div>
 </form>
-<hr />
+<hr class="bg-light" />
 <div class="text-center">
     <p><a href="{% url 'forgot-password' %}"><strong>Forgot Password</strong></a></p>
     <p><strong>Have no account? Sign up <a href="{% url 'register' %}">Here</a>!</strong></p>

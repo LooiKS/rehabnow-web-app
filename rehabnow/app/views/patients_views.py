@@ -20,7 +20,6 @@ class ViewPatients(View):
         return view of list of patients of the physiotherapist
         """
         users = Patient.objects.filter(physiotherapist=request.user.id)
-        print(users)
         return render(
             request, "postlogin/patients/view-patients.html", {"users": users}
         )
@@ -36,13 +35,12 @@ class ViewPatient(View):
         patient_id = kwargs["patient_id"]
         user_id = request.user.id
         patient = Patient.objects.filter(physiotherapist=user_id, patient=patient_id)
+
         if not patient.exists():
             return redirect("patients")
+
         cases = Case.objects.filter(patient_id=patient[0].patient.id).order_by("id")
-        # parts = Part.objects.all().select_related()
-        # print(parts[0].case_id)
-        # for case in cases:
-        #     print(case.parts.all())
+
         return render(
             request,
             "postlogin/patients/view-patient.html",
@@ -55,17 +53,19 @@ class ViewPatient(View):
 def edit_patient(request, patient_id):
     user_id = request.user.id
     patients = Patient.objects.filter(physiotherapist=user_id, patient=patient_id)
+
     if not patients.exists():
         return redirect("patients")
+
     patient = patients[0].patient
 
     if request.method == "POST":
         post = request.POST.copy()
         post["email"] = patient.email
         form = EditProfileForm(post, request.FILES, instance=patient)
+
         if form.is_valid():
             patient = form.save()
-            print("photo", form.cleaned_data.get("photo", None))
             if request.FILES.get("photo", None) is not None:
                 pis = ProfileImageService(
                     form.cleaned_data.get("photo"),
@@ -77,7 +77,7 @@ def edit_patient(request, patient_id):
 
             messages.success(request, "Profile updated.")
             return redirect("patient", patient_id=patient_id)
-        print(form.cleaned_data)
+
         return render(
             request,
             "postlogin/patients/edit-patient.html",
@@ -106,14 +106,12 @@ def add_patient(request):
         post = request.POST.copy()
         post["state"] = int(post["state"])
         form = PatientForm(post, request.FILES)
-        print(post)
+
         if form.is_valid():
-            print("save form")
             patient = form.save(commit=False)
             patient.id = sequence_id()
 
             if form.cleaned_data["photo"]:
-                print(form.cleaned_data["photo"])
                 pis = ProfileImageService(
                     form.cleaned_data["photo"], patient.id, request.FILES["photo"].name
                 )
@@ -139,6 +137,7 @@ def add_patient(request):
                 [form.fields["email"]],
             )
             email_service.send_email()
+            messages.success(request, "Patient added.")
             return redirect("patient", patient_id=patient.id)
         else:
             print(form.errors.as_json())

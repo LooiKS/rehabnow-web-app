@@ -1,12 +1,17 @@
 {% extends "postlogin/base/base.html" %}
 {% load static %}
 {% block title %}Profile{% endblock %}
+
+{% block breadcrumbs %}
+<li class="breadcrumb-item active" aria-current="page">Profile</li>
+{% endblock %}
+
 {% block main_content %}
-<div class="card">
+<!-- <div class="card">
     <div class="card-body">
         <h5 class="font-weight-bold mb-0">Profile</h5>
     </div>
-</div>
+</div> -->
 <div class="row mt-3">
     <div class="col-lg-4 pr-lg-0 mb-2 mb-lg-0">
         <div class="card h-100 text-center shadow-sm">

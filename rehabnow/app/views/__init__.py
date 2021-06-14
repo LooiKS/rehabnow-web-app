@@ -8,3 +8,4 @@ from .case_views import *
 from .part_views import *
 from .exercise_views import *
 from .residential_data_views import *
+from .report_views import *

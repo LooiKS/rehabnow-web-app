@@ -8,21 +8,60 @@
     <link href="{% static 'bootstrap\css\bootstrap.min.css' %}" rel="stylesheet">
     <link href="{% static 'fontawesome\css\all.min.css' %}" rel="stylesheet">
     <link href="{% static 'style.css' %}" rel="stylesheet">
+    <script src="{% static 'jquery/jquery.min.js' %}"></script>
     <title>{% block title %}Home Page{% endblock %} | RehabNow</title>
 </head>
 
 <body>
     <div class="login-bg-backdrop"></div>
     <div class="login-div">
-        <div class="container m-auto">
+        <div class="container m-auto prelogin-center">
             <div class="row m-auto">
-                <div class="login-wrapper col-md-6 col-lg-5 m-auto">
+                <div class="login-wrapper col-md-6 col-lg-5 m-auto rounded-lg shadow-lg">
+                    <h3 class="text-center font-weight-bold">
+                        {% block main_title %}RehabNow Physiotherapist Portal{% endblock %}
+                    </h3>
+                    {% block subtitle %}
+                    {% endblock %}
+                    {% if error %}
+                    <div class="alert alert-danger">
+                        <span>{{error}}</span>
+                    </div>
+                    {% endif %}
+                    {% for message in messages %}
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <strong>{{message}}</strong>
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    {% endfor %}
                     {% block main_content %}
                     {% endblock %}
                 </div>
             </div>
         </div>
     </div>
+    <div class="loading-overlay" id="submit-spinner" style="position: fixed;top: 0;z-index: 120000;">
+        <div class="loading-spinner">
+            <div class="spinner-border text-primary" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
+        </div>
+    </div>
 </body>
+
+<script>
+    $(function () {
+        $("form").submit((event) => {
+            console.log(event);
+            if (!event.isDefaultPrevented()) {
+                alert("trigger");
+                $("#submit-spinner").addClass("d-block");
+            }
+        });
+    });
+
+</script>
 
 </html>
