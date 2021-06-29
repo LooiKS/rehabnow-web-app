@@ -1,0 +1,186 @@
+{% extends "postlogin/base/base.html" %}
+{% load static %}
+{% block title %}Cases{% endblock %}
+
+{% block breadcrumbs %}
+<li class="breadcrumb-item"><a href="{% url 'patients' %}">Patients</a></li>
+<li class="breadcrumb-item"><a href="{% url 'patient' patient_id=patient.id %}">Patient - {{patient.id}}</a></li>
+<li class="breadcrumb-item"><a href="{% url 'view-cases' patient_id=patient.id %}">Cases</a></li>
+<li class="breadcrumb-item active" aria-current="page">Exercise Record</li>
+{% endblock %}
+
+{% block main_content %}
+{% include 'postlogin/patients/view-patient-simple.html' %}
+
+<div class="card mt-3">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-lg-6">
+                <h5 class="font-weight-bold">Exercise Records - {{case.name}} </h5>
+            </div>
+        </div>
+        <div class="mt-3">
+            <canvas id="patient-exercises-history" width="2" height="1"></canvas>
+        </div>
+        <div class="accordion mt-5" id="accordion">
+            {% for part in case.parts.all %}
+            <div class="card bg-light">
+                <div class="card-header" id="heading-{{forloop.counter}}">
+                    <a class="btn btn-block text-left accordian-icon {% if forloop.counter != 1 %}collapsed{% endif %}" type="button" data-toggle="collapse" data-target="#collapse-{{forloop.counter}}" aria-expanded="true" aria-controls="collapseOne">
+                        <b>{{part.name}}</b> <span class="badge {% if part.status == 'Recovered' %}badge-success{% else %}badge-danger{% endif %}">{{part.status}}</span>
+                    </a>
+                </div>
+                <div id="collapse-{{forloop.counter}}" class="collapse {% if forloop.counter == 1 %}show{% endif %}" aria-labelledby="heading-{{forloop.counter}}" data-parent="#accordion" class="card-body">
+                    <div class="row my-3 text-center">
+                        <div class="col-md-6"><b>{{part.description}}</b></div>
+                        <div class="col-md-6">
+                            <b>Recovery Date:</b>
+                            <span>
+                                {% if part.recovery_dt %}
+                                {{part.recovery_dt| date:'M d, Y'|default:'-'}}
+                                {% else %}
+                                {{part.predicted_recoveries.all.0.recovery_dt | date:'M d, Y'|default:'-'}} (Predicted)
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="p-2">
+                        <table class="table text-center table-hover table-responsive d-md-table">
+                            <thead>
+                                <tr class="table-primary">
+                                    <th>#</th>
+                                    <th>Oscillation Number</th>
+                                    <th>Created Date</th>
+                                    <th>Time Taken (s)</th>
+                                    <th>Done</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if part.exercises.all %}
+                                {% for exercise in part.exercises.all %}
+                                <tr>
+                                    <td>{{forloop.counter}}</td>
+                                    <td>{{exercise.oscillation_num}}</td>
+                                    <td>{{exercise.created_dt}}</td>
+                                    <td>{{exercise.time_taken}}</td>
+                                    <td>
+                                        <span class="badge">
+                                            {% if exercise.done %}
+                                            <i class="fa fa-check text-success"></i>
+                                            {% else %}
+                                            <i class="fa fa-times text-danger"></i>
+                                            {% endif %}
+                                        </span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                                {% else %}
+                                <tr>
+                                    <td colspan="5">No records found.</td>
+                                </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<script>
+    var patientPerformanceCtx = document.getElementById('patient-exercises-history')?.getContext('2d');
+    patientPerformanceChart = new Chart(patientPerformanceCtx, {
+        type: 'line',
+        data: {
+            datasets: []
+        },
+        plugins: [
+            {
+                afterDraw: function (chart) {
+                    let showNoData = (text) => {
+                        var ctx = chart.ctx;
+                        var width = chart.width;
+                        var height = chart.height
+
+                        ctx.save();
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        ctx.font = "16px normal 'Helvetica Nueue'";
+                        ctx.fillText(text, width / 2, height / 2);
+                        ctx.restore();
+                    }
+
+                    if (chart.data.datasets.length === 0) {
+                        showNoData("No part is registered for this patient");
+                    } else if (chart.data.datasets.filter((data) => data.data.length > 0).length === 0) {
+                        showNoData("No data");
+                    }
+                },
+            }
+        ],
+        options: {
+            plugins: {
+                title: {
+                    display: true,
+                    text: "Patient Exercises Record"
+                },
+                decimation: {
+                    enabled: false,
+                    algorithm: 'min-max',
+                }
+            },
+            scales: {
+                x: {
+                    type: "time",
+                    ticks: {
+                        source: 'auto',
+                        // Disabled rotation for performance
+                        maxRotation: 0,
+                        autoSkip: true,
+                    }
+                }
+            },
+            interaction: {
+                mode: 'nearest',
+                axis: 'x',
+                intersect: false
+            },
+        }
+    });
+
+    const color = [
+        "#25CCF7", "#FD7272", "#54a0ff", "#00d2d3",
+        "#1abc9c", "#2ecc71", "#3498db", "#9b59b6", "#34495e",
+        "#16a085", "#27ae60", "#2980b9", "#8e44ad", "#2c3e50",
+        "#f1c40f", "#e67e22", "#e74c3c", "#ecf0f1", "#95a5a6",
+        "#f39c12", "#d35400", "#c0392b", "#bdc3c7", "#7f8c8d",
+        "#55efc4", "#81ecec", "#74b9ff", "#a29bfe", "#dfe6e9",
+        "#00b894", "#00cec9", "#0984e3", "#6c5ce7", "#ffeaa7",
+        "#fab1a0", "#ff7675", "#fd79a8", "#fdcb6e", "#e17055",
+        "#d63031", "#feca57", "#5f27cd", "#54a0ff", "#01a3a4"
+    ]
+
+    $.ajax({
+        url: `/api/get-patient-performance/{{patient.id}}?case_id={{case.id}}`,
+        method: "GET",
+        success: (data) => {
+            var dataset = data.map((record, index) => {
+                return {
+                    label: `${record.part_name} - ${record.case_name}`,
+                    data: record.exercises.map((e) => { return { x: e.date_time, y: e.oscillation_num }; }),
+                    borderColor: color[index],
+                    borderWidth: 3,
+                    pointRadius: 2,
+                };
+            });
+            patientPerformanceChart.data.datasets = dataset;
+            patientPerformanceChart.update();
+            $("#patient-performance-spinner").addClass("d-none").removeClass("d-block");
+        }
+    });
+
+
+</script>
+{% endblock %}

@@ -1,0 +1,122 @@
+{% extends "postlogin/base/base.html" %}
+{% load static %}
+{% block title %}Case{% endblock %}
+
+{% block breadcrumbs %}
+<li class="breadcrumb-item"><a href="{% url 'patients' %}">Patients</a></li>
+<li class="breadcrumb-item"><a href="{% url 'patient' patient_id=patient.id %}">Patient - {{patient.id}}</a></li>
+<li class="breadcrumb-item active" aria-current="page">Cases</li>
+{% endblock %}
+
+{% block main_content %}
+{% include 'postlogin/patients/view-patient-simple.html' %}
+<!-- <div class="card">
+    <div class="card-body">
+        <h5 class="font-weight-bold mb-0">Patient</h5>
+    </div>
+</div> -->
+
+<div class="card mt-3">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-lg-6">
+                <h5 class="font-weight-bold">Cases</h5>
+            </div>
+            <div class="col-lg-6 text-lg-right">
+                <a class="btn btn-outline-primary" href="{% url 'add-case' patient_id=patient.id %}">
+                    <i class="fa fa-plus"></i>
+                    Add new case
+                </a>
+            </div>
+        </div>
+        {% if not cases%}
+        <div class="alert alert-primary my-3">
+            <strong>No cases is added.</strong>
+        </div>
+        {% include 'postlogin/components/not-found.html' %}
+        {% endif %}
+        {% for case in cases %}
+        <div class="card my-3 border-info shadow-sm">
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-4">
+                        <h5 class="font-weight-bold">{{case.name}}</h5>
+                        <p class="text-muted">{{case.description}}</p>
+                    </div>
+                    <div class="col-md-4">
+                        <span class="font-weight-bold">{{case.status}}</span>
+                        <p class="text-muted">{{case.created_dt}}</p>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <div class="mb-2">
+                                <a href="{% url 'edit-case' patient_id=patient.id case_id=case.id %}" class="btn btn-outline-secondary">
+                                    <i class="fa fa-edit"></i> Edit
+                                </a>
+                                <form action="/cases/{{patient.id}}/{{case.id}}/delete" method="POST" class="d-inline">
+                                    {% csrf_token %}
+                                    <button class="btn btn-outline-danger" name="case-id" value="{{case.id}}" type="button"><i class="fa fa-trash"></i> Delete</button>
+                                </form>
+                            </div>
+                            <a href="{% url 'exercise-records' case_id=case.id %}" class="btn btn-outline-primary">
+                                <i class="fa fa-eye"></i> View Exercise Records
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {%load index%}
+                <ul class="list-group list-group-flush">
+                    {% for part in case.parts.all %}
+                    <li class="list-group-item">
+                        <div class="row text-center">
+                            <div class=" col-lg-3">
+                                <p class="font-weight-bold">{{part.name}}</p>
+                                <p>{{part.description}}</p>
+                            </div>
+                            <div class="col-lg-3 mt-3 mt-lg-0">
+                                <p class="text-muted">Recevory Date</p>
+                                {% if part.recovery_dt %}
+                                <p>{{part.recovery_dt| date:'M d, Y'|default:'-'}}</p>
+                                {% else %}
+                                <p>{{part.predicted_recoveries.all.0.recovery_dt | date:'M d, Y'|default:'-'}} (Predicted)</p>
+                                {% endif %}
+                            </div>
+                            <div class="col-lg-3 mt-3 mt-lg-0">
+                                <p class="text-muted">Status</p>
+                                <p>{{part.status}}</p>
+                            </div>
+                            {% for target in part.targets.all %}
+                            <div class="col-lg-3 ">
+                                <p class="text-muted mt-3 mt-lg-0 d-lg-none d-block">Oscillation</p>
+                                <p>{{target.oscillation_num}} oscillation (s)</p>
+                                <p class="text-muted mt-5 mt-lg-0 d-lg-none d-block">Frequency</p>
+                                <p>{{target.frequency|get_frequency_desc}}</p>
+                                <p class="text-muted mt-5 mt-lg-0 d-lg-none d-block">Time Allocated</p>
+                                <p>{{target.time_taken}} seconds allocated</p>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+<script>
+    $("button[name='case-id']").click((e) => {
+        Swal.fire({
+            title: 'Confirmation to delete case',
+            text: 'Are you sure to delete the case, it is NOT REVERSIBLE!',
+            icon: 'question',
+            showCancelButton: true
+        }).then(({ isConfirmed }) => {
+            if (isConfirmed) {
+                $(e.target).closest("form").submit()
+            }
+        })
+    })
+</script>
+{% endblock %}

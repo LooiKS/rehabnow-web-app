@@ -23,41 +23,53 @@
         {% if not users|length %}
         {% include 'postlogin/components/not-found.html' %}
         {% else %}
+        <div class="input-group">
+            <div class="input-group-prepend">
+                <div class="input-group-text border-0 bg-white">
+                    <i class="fa fa-search"></i>
+                </div>
+            </div>
+            <input type="text" id="filter-input" class="form-control col-lg-3 shadow-none">
+        </div>
         <table class="table table-responsive table-striped table-hover d-md-table mt-3">
-            <tr class="table-primary">
-                <th>No.</th>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Gender</th>
-                <th>Phone Number</th>
-                <th>DOB</th>
-                <th>Nationality</th>
-                <th>Status</th>
-                <th>Actions</th>
-            </tr>
-            {% for user in users %}
-            <tr>
-                <td>{{forloop.counter}}</td>
-                <td><a href="{% url 'patient' patient_id=user.patient.id %}">{{user.patient.id}}</a></td>
-                <td>
-                    <img src="{% get_media_prefix %}{{user.patient.photo}}" class="rounded-circle" width="30" />
-                    <span>{{user.patient.first_name}} {{user.patient.last_name}}</span>
-                </td>
-                <td>{{user.patient.gender}}</td>
-                <td>{{user.patient.phone_num}}</td>
-                <td>{{user.patient.dob}}</td>
-                <td>{{user.patient.get_nationality}}</td>
-                <td class="text-capitalize">{{user.patient.status}}</td>
-                <td>
-                    <a class="btn btn-primary p-2 shadow-none" title="Edit" href="{% url 'edit-patient' patient_id=user.patient.id %}">
-                        <i class="fa fa-edit align-middle"></i>
-                    </a>
-                    <button class="btn btn-danger p-2 shadow-none" title="Delete" onclick="deletePatient('{{user.patient.id}}')">
-                        <i class="fa fa-trash align-middle"></i>
-                    </button>
-                </td>
-            </tr>
-            {% endfor %}
+            <thead>
+                <tr class="table-primary">
+                    <th>No.</th>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Gender</th>
+                    <th>Phone Number</th>
+                    <th>DOB</th>
+                    <th>Nationality</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td>{{forloop.counter}}</td>
+                    <td><a href="{% url 'patient' patient_id=user.patient.id %}">{{user.patient.id}}</a></td>
+                    <td>
+                        <img src="{% get_media_prefix %}{{user.patient.photo}}" class="rounded-circle" width="30" />
+                        <span>{{user.patient.first_name}} {{user.patient.last_name}}</span>
+                    </td>
+                    <td>{{user.patient.gender}}</td>
+                    <td>{{user.patient.phone_num}}</td>
+                    <td>{{user.patient.dob}}</td>
+                    <td>{{user.patient.get_nationality}}</td>
+                    <td><span class="text-capitalize badge {% if user.patient.status == 'active' %}badge-success{% else %}badge-danger{% endif %}">{{user.patient.status}}</span></td>
+                    <td>
+                        <a class="btn btn-primary p-2 shadow-none" title="Edit" href="{% url 'edit-patient' patient_id=user.patient.id %}">
+                            <i class="fa fa-edit align-middle"></i>
+                        </a>
+                        <button class="btn btn-danger p-2 shadow-none" title="Delete" onclick="deletePatient('{{user.patient.id}}')">
+                            <i class="fa fa-trash align-middle"></i>
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
         </table>
         {% endif %}
     </div>
@@ -66,6 +78,20 @@
 {% endblock %}
 {% block script %}
 <script>
+
+    function handleChildren(child, text) {
+        var result = false;
+        if (child.textContent.toLowerCase().indexOf(text.toLowerCase()) != -1) {
+            return true;
+        } else {
+            var children = $(child).children();
+            for (var i = 0; i < children.length; i++) {
+                result |= handleChildren(children[i], text);
+            }
+            return result;
+        }
+    }
+
     function deletePatient(id) {
         Swal.fire({
             title: `Confirmation to delete patient ${id}`,
@@ -81,5 +107,20 @@
             }
         });
     }
+
+    (function () {
+        $("#filter-input").on("input", function (event) {
+            $("tbody").find("tr").each(function (index, tr) {
+                var show = false;
+                var tds = $(tr).find("td");
+                show = handleChildren(tr, event.target.value);
+                if (show) {
+                    $(tr).show();
+                } else {
+                    $(tr).hide();
+                }
+            });
+        });
+    })();
 </script>
 {% endblock %}

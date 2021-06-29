@@ -35,8 +35,8 @@ def delete_cases(request, case_id, patient_id):
         return redirect("patient", patient_id=patient_id)
 
     case.delete()
-    messages.success(request, "Deleted")
-    return redirect("patient", patient_id=patient_id)
+    messages.success(request, "Case deleted")
+    return redirect("view-cases", patient_id=patient_id)
 
 
 @login_required
@@ -59,32 +59,34 @@ def edit_case(request, patient_id, case_id):
         form=TargetForm, model=Target, can_delete=True, extra=0
     )
     parts = case.parts.all()
-    q = Target.objects.none()
-    for p in parts:
-        q |= p.targets.all()
+    targets = Target.objects.none()
+    for part in parts:
+        targets |= part.targets.all()
 
     if request.method == "POST":
         case_form = CaseForm(request.POST, prefix="case", instance=case)
         part_forms = PartFormSet(prefix="part", queryset=parts, data=request.POST)
-        target_forms = TargetFormSet(prefix="target", queryset=q, data=request.POST)
+        target_forms = TargetFormSet(
+            prefix="target", queryset=targets, data=request.POST
+        )
 
         if case_form.is_valid() and part_forms.is_valid() and target_forms.is_valid():
             case = case_form.save(commit=False)
             case.status = "Recovered"
 
             for part_form, target_form in zip(part_forms, target_forms):
-                if (
-                    part_form["id"].data not in parts_id
-                    or target_form["id"].data not in targets_id
-                ):
-                    pass
                 if part_form.cleaned_data.get("DELETE"):
-                    Part.objects.get(pk=part_form.cleaned_data["id"].id).delete()
-                    continue
+                    try:
+                        part = Part.objects.get(pk=part_form.cleaned_data["id"].id)
+                    except:
+                        continue
+                    part.delete()
                 else:
                     part = part_form.save(commit=False)
                     target = target_form.save(commit=False)
                     part.case_id = case
+                    part.created_by = request.user.pk
+                    target.created_by = request.user.pk
                     if part.recovery_dt:
                         part.status = "Recovered"
                     elif part.status == "Recovered":
@@ -97,31 +99,53 @@ def edit_case(request, patient_id, case_id):
 
             case.save()
             messages.success(request, "Case updated")
-            return redirect("patient", patient_id=patient_id)
+            return redirect("view-cases", patient_id=patient_id)
 
     else:
         case_form = CaseForm(prefix="case", instance=case)
         part_forms = PartFormSet(prefix="part", queryset=parts)
-        target_forms = TargetFormSet(prefix="target", queryset=q)
+        target_forms = TargetFormSet(prefix="target", queryset=targets)
 
     forms = []
-    for p, t in map(lambda x, y: (x, y), part_forms, target_forms):
-        if (not p.is_bound and not t.is_bound) or (
-            not p.cleaned_data.get("DELETE") and not t.cleaned_data.get("DELETE")
+    for part_form, target_form in map(lambda x, y: (x, y), part_forms, target_forms):
+        if (not part_form.is_bound and not target_form.is_bound) or (
+            not part_form.cleaned_data.get("DELETE")
+            and not target_form.cleaned_data.get("DELETE")
         ):
-            forms.append((p, t))
+            forms.append((part_form, target_form))
 
     return render(
         request,
         "postlogin/cases/add-case.html",
         {
-            "user": patient.patient,
+            "patient": patient.patient,
             "part_forms": part_forms,
             "case_form": case_form,
             "target_forms": target_forms,
             "forms": forms,
             "cardTitle": "Edit Case",
         },
+    )
+
+
+@login_required
+@permission_required("app.web_permission")
+def view_cases(request, patient_id):
+    try:
+        patient = Patient.objects.get(
+            patient_id=patient_id, physiotherapist=request.user.pk
+        )
+    except:
+        return redirect("patients")
+    cases = (
+        Case.objects.filter(patient_id=patient_id)
+        .order_by("id")
+        .order_by("-created_dt")
+    )
+    return render(
+        request,
+        "postlogin/cases/view-cases.html",
+        {"patient": patient.patient, "cases": cases},
     )
 
 
@@ -154,21 +178,23 @@ def add_case(request, patient_id):
             case.status = "Under Treatment"
             case.save()
 
-            for p, t in map(lambda x, y: (x, y), part_forms, target_forms):
-                if not p.cleaned_data.get("DELETE") and not t.cleaned_data.get(
+            for part_form, target_form in map(
+                lambda x, y: (x, y), part_forms, target_forms
+            ):
+                if not part_form.cleaned_data.get(
                     "DELETE"
-                ):
-                    part = p.save(commit=False)
+                ) and not target_form.cleaned_data.get("DELETE"):
+                    part = part_form.save(commit=False)
                     part.created_by = request.user.pk
                     part.case_id = case
                     part.save()
 
-                    target = t.save(commit=False)
+                    target = target_form.save(commit=False)
                     target.created_by = request.user.pk
                     target.part_id = part
                     target.save()
             messages.success(request, "New case added")
-            return redirect("patient", patient_id=patient_id)
+            return redirect("view-cases", patient_id=patient_id)
 
     else:
         case_form = CaseForm(prefix="case")
@@ -176,17 +202,18 @@ def add_case(request, patient_id):
         target_forms = TargetFormSet(prefix="target")
 
     forms = []
-    for p, t in map(lambda x, y: (x, y), part_forms, target_forms):
-        if (not p.is_bound and not t.is_bound) or (
-            not p.cleaned_data.get("DELETE") and not t.cleaned_data.get("DELETE")
+    for part_form, target_form in map(lambda x, y: (x, y), part_forms, target_forms):
+        if (not part_form.is_bound and not target_form.is_bound) or (
+            not part_form.cleaned_data.get("DELETE")
+            and not target_form.cleaned_data.get("DELETE")
         ):
-            forms.append((p, t))
+            forms.append((part_form, target_form))
 
     return render(
         request,
         "postlogin/cases/add-case.html",
         {
-            "user": patient.patient,
+            "patient": patient.patient,
             "case_form": case_form,
             "part_forms": part_forms,
             "target_forms": target_forms,

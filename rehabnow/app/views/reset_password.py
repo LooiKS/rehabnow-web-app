@@ -70,7 +70,6 @@ def forgot_password(request):
 
 def reset_password(request, uidb64, token):
     if request.method == "POST":
-        print(request.POST)
         password = request.POST["password"]
         # decode uid, get User
         error = set_password(uidb64, token, password)
@@ -84,7 +83,6 @@ def reset_password(request, uidb64, token):
 
 def set_patient_first_password(request, uidb64, token):
     if request.method == "POST":
-        print(request.POST)
         password = request.POST["password"]
         # decode uid, get User
         error = set_password(uidb64, token, password)
@@ -110,7 +108,6 @@ def reset_password_api(request):
     data = request.data
     try:
         patient = Patient.objects.get(patient__email=data["email"]).patient
-        print(patient.status)
         if patient.status == "active":
             context = {
                 "domain": get_current_site(request),

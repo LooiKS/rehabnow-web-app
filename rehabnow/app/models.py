@@ -8,7 +8,6 @@ def sequence_id():
     with connection.cursor() as cursor:
         cursor.execute("""SELECT NEXTVAL('app_user_id_seq')""")
         val = cursor.fetchone()[0]
-        print("user id:\n\n\n\n\n\n", val)
         return f"R{val:07}"
 
 
@@ -17,7 +16,6 @@ class UserManager(BaseUserManager):
         user = self.model(email=self.normalize_email(email), status="unverified")
         user.set_password(password)
         user.save()
-        print("create_user")
         return user
 
 
@@ -58,7 +56,6 @@ class User(AbstractBaseUser):
         return self.is_admin
 
     def has_perms(self, perm):
-        print(Physiotherapist.objects.filter(physiotherapist__id=self.id).exists())
         if len(perm) > 0:
             if perm[0] == "app.web_permission":
                 return Physiotherapist.objects.filter(

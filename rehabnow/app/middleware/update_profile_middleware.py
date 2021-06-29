@@ -10,8 +10,6 @@ def update_profile_middleware(get_response):
 
         response = get_response(request)
 
-        # print(request.META.get("HTTP_ACCEPT"))
-
         if (
             request.path.find("/api/") == -1
             and request.path.find("edit-profile") == -1

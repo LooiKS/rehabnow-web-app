@@ -56,7 +56,6 @@
         $("form").submit((event) => {
             console.log(event);
             if (!event.isDefaultPrevented()) {
-                alert("trigger");
                 $("#submit-spinner").addClass("d-block");
             }
         });

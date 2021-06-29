@@ -6,11 +6,9 @@ import os
 
 class ProfileImageService:
     def __init__(self, src, user_id, upload_filename):
-        print("ok1")
         self.src = src
         self.user_id = user_id
         self.upload_filename = upload_filename
-        print("ok2")
 
     def save(self):
         cropped = img = Image.open(self.src)
@@ -42,7 +40,6 @@ class ProfileImageService:
         )
         absolute_filepath = settings.MEDIA_ROOT + filepath + filename
         cropped.save(absolute_filepath)
-        print(filepath + filename)
         return filepath + filename
 
     def save_and_delete(self, ori_photo):

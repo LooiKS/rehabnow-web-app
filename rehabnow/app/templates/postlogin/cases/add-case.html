@@ -1,15 +1,17 @@
-{% extends "postlogin/patients/view-patient.html" %}
+{% extends "postlogin/base/base.html" %}
 {% load static %}
 {% block title %}Cases{% endblock %}
 
 {% block breadcrumbs %}
 <li class="breadcrumb-item"><a href="{% url 'patients' %}">Patients</a></li>
-<li class="breadcrumb-item"><a href="{% url 'patient' patient_id=user.id %}">Patient - {{user.id}}</a></li>
+<li class="breadcrumb-item"><a href="{% url 'patient' patient_id=patient.id %}">Patient - {{patient.id}}</a></li>
+<li class="breadcrumb-item"><a href="{% url 'view-cases' patient_id=patient.id %}">Cases</a></li>
 <li class="breadcrumb-item active" aria-current="page">{% if cardTitle == 'Add Case' %} Add case {% else %} Edit Case {% endif %}
 </li>
 {% endblock %}
 
-{% block case_content %}
+{% block main_content %}
+{% include 'postlogin/patients/view-patient-simple.html' %}
 <div class="card mt-3">
     <div class="card-body">
         <div class="row">
@@ -122,7 +124,7 @@
                         <div class="card border-bottom">
                             <div class="card-header" id="accordion-heading-{{forloop.counter}}">
                                 <h2 class="mb-0">
-                                    <button class="btn btn-block shadow-none text-left" type="button" data-toggle="collapse" data-target="#collapse-{{forloop.counter0}}" aria-expanded="false" aria-controls="collapse-{{forloop.counter0}}">
+                                    <button class="btn btn-block shadow-none text-left accordian-icon collapsed" type="button" data-toggle="collapse" data-target="#collapse-{{forloop.counter0}}" aria-expanded="false" aria-controls="collapse-{{forloop.counter0}}">
                                         Body Part #{{forloop.counter}}
                                     </button>
                                 </h2>
@@ -262,7 +264,7 @@
             </div>
             <div class="text-center mt-3">
                 <button class="btn btn-outline-primary" id="add-case-form-submit-btn" type="button">Save</button>
-                <a class="btn btn-outline-warning" href="{% url 'patient' patient_id=user.id %}">Cancel</a>
+                <a class="btn btn-outline-warning" href="{% url 'view-cases' patient_id=patient.id %}">Cancel</a>
             </div>
         </form>
     </div>
@@ -299,13 +301,14 @@
         $('.remove-part-btn').click((e) => {
             var input = $("input[name='part-TOTAL_FORMS']");
             var num = parseInt(input.val());
-            input.val(num - 1);
+            // input.val(num - 1);
             var btn = e.target;
             var part = $(btn).attr("data-target");
-            var target = part.replace("part", "target")
-            $(part).attr("checked", "on")
-            $(target).attr("checked", "on")
-            $(btn).closest(".card").remove()
+            removed.push(part)
+            // var target = part.replace("part", "target")
+            // $(part).attr("checked", "on")
+            // $(target).attr("checked", "on")
+            $(btn).closest(".card").hide()
         });
     }
 

@@ -139,7 +139,7 @@ import os
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "rehabnow/storage")
 AUTH_USER_MODEL = "app.User"
-LOGIN_URL = "/app/login"
+LOGIN_URL = "/login"
 
 SESSION_COOKIE_AGE = 60 * 60 * 24
 SESSION_SAVE_EVERY_REQUEST = True

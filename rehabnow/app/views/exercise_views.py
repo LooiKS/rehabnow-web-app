@@ -3,18 +3,34 @@ from django.db.models.query import Prefetch
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rehabnow.app.models import (
-    Part,
-    Exercise,
-    Target,
-    PredictedRecovery,
-)
+from rehabnow.app.models import Part, Exercise, Target, PredictedRecovery, Case
 from rehabnow.app.serializers import ExerciseRecordsSerializer, ExerciseSerializer
 from sklearn.linear_model import LinearRegression
 from datetime import datetime
 from datetime import timedelta
 import math
 from django.utils.timezone import make_aware
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required, permission_required
+
+
+@login_required
+@permission_required("app.web_permission")
+def view_exercise_records(request, case_id):
+    exercises = Exercise.objects.order_by("created_dt")
+    try:
+        case = Case.objects.prefetch_related(
+            Prefetch("parts__exercises", exercises)
+        ).get(id=case_id, patient_id__physiotherapist=request.user.pk)
+    except:
+        return redirect("patients")
+
+    patient = case.patient_id.patient
+    return render(
+        request,
+        "postlogin/exercises/exercise-records.html",
+        {"patient": patient, "case": case},
+    )
 
 
 @api_view(["GET"])

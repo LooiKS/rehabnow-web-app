@@ -122,7 +122,6 @@ class EditProfileForm(forms.ModelForm):
     def clean_photo(self):
         photo = self.cleaned_data.get("photo")
         if photo:
-            print(photo.name)
             if photo.size > 5 * 1024 * 1024:
                 raise ValidationError("Size exceed 5MB", "exceed_max_size")
         return photo

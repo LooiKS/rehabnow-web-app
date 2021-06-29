@@ -64,6 +64,11 @@ urlpatterns = [
         name="delete-patient",
     ),
     # case
+    path(
+        "patients/<patient_id>/cases",
+        login_required(views.view_cases),
+        name="view-cases",
+    ),
     path("cases/<patient_id>/add", login_required(views.add_case), name="add-case"),
     path(
         "cases/<patient_id>/<case_id>/edit",
@@ -74,6 +79,11 @@ urlpatterns = [
         "cases/<patient_id>/<case_id>/delete",
         login_required(views.delete_cases),
         name="delete-case",
+    ),
+    path(
+        "cases/<case_id>/exercise",
+        login_required(views.view_exercise_records),
+        name="exercise-records",
     ),
 ]
 

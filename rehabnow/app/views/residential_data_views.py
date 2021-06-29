@@ -18,12 +18,6 @@ import time
 @api_view(["GET"])
 # @permission_classes([IsAuthenticated])
 def get_states(request, iso2):
-    a = {"a": ""}
-    print(a.get("photo"))
-
-    print(request.user)
-    t = str(time.time() * 1000)
-    print(t.index("."))
     states = StateSerializer(
         State.objects.prefetch_related("cities").filter(iso2=iso2), many=True
     ).data

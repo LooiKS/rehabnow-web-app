@@ -196,7 +196,7 @@
                                 <select class="form-control" value="Johor" id="state" name="state" required>
                                     {% for value, text in form.state.field.choices %}
                                     <option value="{{value}}" {% if value|slugify == form.state.value|slugify|default_if_none:'' %} selected {% endif %} {% if value == "" %} disabled {% endif %}>
-                                        {{text}} {{value}} {{form.state.value}}
+                                        {{text}}
                                     </option>
                                     {% endfor %}
                                 </select>
@@ -238,7 +238,7 @@
                                 <div class="input-group" id="current-password-div">
                                     <input class="form-control no-validate" id="current-password" name="current_password" type="password" required />
                                     <div class="input-group-append">
-                                        <div class="input-group-text" style="border-left: 0;background-color: white;padding: 0;">
+                                        <div class="input-group-text" style="border: 0;background-color: white;padding: 0;">
                                             <button class="shadow-none btn" type="button">
                                                 <i class="fa fa-eye fa-icon-password"></i>
                                             </button>
@@ -260,7 +260,7 @@
                                 <div class="input-group" id="new-password-div">
                                     <input class="form-control no-validate" id="new-password" name="new_password" type="password" required pattern="^(?=.*[^A-z\s\d][\\\^]?)(?=.*\d)(?=.*[a-zA-Z]).{8,}$" />
                                     <div class="input-group-append">
-                                        <div class="input-group-text" style="border-left: 0;background-color: white;padding: 0;">
+                                        <div class="input-group-text" style="border: 0;background-color: white;padding: 0;">
                                             <button class="shadow-none btn" type="button">
                                                 <i class="fa fa-eye fa-icon-password"></i>
                                             </button>
@@ -284,7 +284,7 @@
                                 <div class="input-group" id="confirm-password-div">
                                     <input class="form-control no-validate" id="confirm-password" name="confirmNewPassword" type="password" required />
                                     <div class="input-group-append">
-                                        <div class="input-group-text" style="border-left: 0;background-color: white;padding: 0;">
+                                        <div class="input-group-text" style="border: 0;background-color: white;padding: 0;">
                                             <button class="shadow-none btn" type="button">
                                                 <i class="fa fa-eye fa-icon-password"></i>
                                             </button>

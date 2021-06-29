@@ -6,7 +6,7 @@ from django.contrib.auth import (
 from django.http.response import HttpResponseRedirect
 from django.shortcuts import render, redirect
 from rest_framework.authtoken.models import Token
-from rehabnow.app.models import User
+from rehabnow.app.models import User, Patient
 from rehabnow.app.serializers import UserSerializer
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
@@ -68,7 +68,7 @@ def rest_logout(request):
 def rest_login(request):
     data = request.data
     try:
-        user = User.objects.get(email=data["email"])
+        user = Patient.objects.get(patient__email=data["email"]).patient
     except:
         return Response(
             {

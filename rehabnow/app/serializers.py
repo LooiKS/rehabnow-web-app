@@ -147,7 +147,6 @@ class ExerciseSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
     def get_created_dt(self, part):
-        print(type(part.created_dt))
         datetime.datetime
         return (int)((part.created_dt.timestamp() * 1000))
 
@@ -157,7 +156,6 @@ class ExerciseDataSerializer(serializers.Serializer):
     oscillation_num = serializers.IntegerField()
 
     def get_date_time(self, instance):
-        # print(instance.part_id.name)
         return (int)((instance.created_dt.timestamp() * 1000))
 
 

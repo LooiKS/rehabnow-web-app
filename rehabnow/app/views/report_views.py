@@ -6,10 +6,12 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rehabnow.app.models import Patient, Part
 from rehabnow.app.serializers import ExerciseRecordsSerializer
+from django.contrib.auth.decorators import permission_required
 
 
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
+@permission_required("app.web_permission")
 def get_patient_prediction(request, patient_id):
     parts = Part.objects.filter(
         case_id__patient_id=patient_id,
@@ -27,8 +29,6 @@ def get_patient_prediction(request, patient_id):
         if len(exercises) > 0:
             X = list([e.oscillation_num] for e in exercises)
             y = list([i] for i in range(len(exercises)))
-            print(X)
-            print(y)
             reg = LinearRegression().fit(X, y)
             reg.score(X, y)
 
@@ -69,18 +69,28 @@ def get_patient_prediction(request, patient_id):
 
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
+@permission_required("app.web_permission")
 def get_patient_performance(request, patient_id):
-    parts = Part.objects.filter(
-        case_id__patient_id=patient_id,
-        case_id__patient_id__physiotherapist=request.user.id,
-        status="Under Treatment",
-    )
-    print(request.user.id)
+    case_id = request.GET.get("case_id")
+    if case_id is not None:
+        parts = Part.objects.filter(
+            case_id__id=case_id,
+            case_id__patient_id=patient_id,
+            case_id__patient_id__physiotherapist=request.user.id,
+            status="Under Treatment",
+        )
+    else:
+        parts = Part.objects.filter(
+            case_id__patient_id=patient_id,
+            case_id__patient_id__physiotherapist=request.user.id,
+            status="Under Treatment",
+        )
     return Response(ExerciseRecordsSerializer(parts, many=True).data)
 
 
 @api_view(["GET"])
-# @permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated])
+@permission_required("app.web_permission")
 def get_patient_category(request):
     id = request.user.id
     patients = Patient.objects.filter(physiotherapist__physiotherapist__id=id)
