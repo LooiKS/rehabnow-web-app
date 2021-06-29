@@ -84,7 +84,7 @@ def register(request):
                 "token": default_token_generator.make_token(user),
             }
             emailService = EmailService(
-                "registration.html", context, "Welcome To RehabNow!", user.email
+                "registration.html", context, "Welcome To RehabNow!", [user.email]
             )
             emailService.send_email()
             return redirect("registration-success")
