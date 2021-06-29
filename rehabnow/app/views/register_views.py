@@ -2,7 +2,6 @@ from rehabnow.app.forms.physiotherapist_form import PhysiotherapistForm
 from rehabnow.app.models import User, Physiotherapist, sequence_id
 from django.shortcuts import render, redirect
 from django.template.loader import render_to_string
-from django.core.mail import EmailMessage
 from django.conf import settings
 from django.utils.encoding import force_bytes
 from django.contrib.sites.shortcuts import get_current_site
@@ -37,23 +36,15 @@ def resend_activation_link(request):
         user = None
 
     if user is not None:
-        message = render_to_string(
-            "email/registration.html",
-            {
-                "domain": get_current_site(request),
-                "uid": urlsafe_base64_encode(force_bytes(user.pk)),
-                "token": default_token_generator.make_token(user),
-            },
+        context = {
+            "domain": get_current_site(request),
+            "uid": urlsafe_base64_encode(force_bytes(user.pk)),
+            "token": default_token_generator.make_token(user),
+        }
+        emailService = EmailService(
+            "registration.html", context, "Welcome To RehabNow!", [email]
         )
-        email = EmailMessage(
-            "Welcome To RehabNow!",
-            message,
-            settings.DEFAULT_FROM_EMAIL,
-            [email],
-            [settings.DEFAULT_FROM_EMAIL],
-        )
-        email.content_subtype = "html"
-        email.send()
+        emailService.send_email()
     return redirect("resend-activation-link-success")
 
 

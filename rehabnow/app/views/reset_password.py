@@ -2,7 +2,6 @@ from django.shortcuts import render, redirect
 from rehabnow.app.models import Patient, User
 from django.template.loader import render_to_string
 from django.contrib.sites.shortcuts import get_current_site
-from django.core.mail import EmailMessage
 from django.conf import settings
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from django.utils.encoding import force_bytes
@@ -47,23 +46,15 @@ def forgot_password(request):
             return render(request, "prelogin/forgot-password.html", {"error": error})
 
         if user is not None:
-            message = render_to_string(
-                "email/reset-password.html",
-                {
-                    "domain": get_current_site(request),
-                    "uid": urlsafe_base64_encode(force_bytes(user.pk)),
-                    "token": default_token_generator.make_token(user),
-                },
+            context = {
+                "domain": get_current_site(request),
+                "uid": urlsafe_base64_encode(force_bytes(user.pk)),
+                "token": default_token_generator.make_token(user),
+            }
+            emailService = EmailService(
+                "reset-password.html", context, "RehabNow Password Reset", [email]
             )
-            email = EmailMessage(
-                "RehabNow Password Reset",
-                message,
-                settings.DEFAULT_FROM_EMAIL,
-                [email],
-                [settings.DEFAULT_FROM_EMAIL],
-            )
-            email.content_subtype = "html"
-            email.send()
+            emailService.send_email()
             return render(request, "prelogin/forgot-password-link-sent.html")
     return render(request, "prelogin/forgot-password.html")
 

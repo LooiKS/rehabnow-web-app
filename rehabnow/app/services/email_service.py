@@ -8,9 +8,7 @@ class EmailService:
         self.template = template
         self.context = context
         self.subject = subject
-        self.recipients = [
-            settings.DEFAULT_FROM_EMAIL,
-        ]
+        self.recipients = recipients
 
     def send_email(self):
         message = render_to_string("email/%s" % self.template, self.context)
