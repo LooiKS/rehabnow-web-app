@@ -139,6 +139,10 @@ body {
   outline: 0 none;
 }
 
+.login-wrapper input {
+  border-width: 1px !important;
+}
+
 input.form-control,
 textarea.form-control,
 select.form-control,
