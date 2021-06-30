@@ -15,7 +15,7 @@
             <div class="invalid-feedback bg-danger text-white">Please enter an email address.</div>
         </div>
         {% for error in form.email.errors %}
-        <div class="bg-danger">{{error}}</div>
+        <div class="bg-danger mt-1 small">{{error}}</div>
         {% endfor %}
         <div class="input-group my-3" id="password-div">
             <div class="input-group-prepend">
@@ -32,7 +32,7 @@
             <div class="invalid-feedback bg-danger text-white">Please enter password with at least 8 characters (including alphabet, digit
                 and special character).</div>
             {% for error in form.password.errors %}
-            <div class="bg-danger">{{error}}</div>
+            <div class="bg-danger mt-1 small">{{error}}</div>
             {% endfor %}
         </div>
         <div class="input-group my-3" id="retype-password-div">
