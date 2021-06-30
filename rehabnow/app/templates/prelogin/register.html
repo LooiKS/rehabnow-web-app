@@ -95,14 +95,14 @@
             let emailElem = form.email;
             let passwordElem = form.password;
             let retypePasswordElem = form.retypePassword;
-            // if (!/\b[\w\.-]+@[\w\.-]+\.\w{2,4}\b/.test(emailElem.value)) {
-            //     emailElem.setCustomValidity('false')
-            // } else if (passwordElem.value !== retypePasswordElem.value) {
-            //     retypePasswordElem.setCustomValidity('false')
-            // } else {
-            //     emailElem.setCustomValidity('')
-            //     retypePasswordElem.setCustomValidity('')
-            // }
+            if (!/\b[\w\.-]+@[\w\.-]+\.\w{2,4}\b/.test(emailElem.value)) {
+                emailElem.setCustomValidity('false')
+            } else if (passwordElem.value !== retypePasswordElem.value) {
+                retypePasswordElem.setCustomValidity('false')
+            } else {
+                emailElem.setCustomValidity('')
+                retypePasswordElem.setCustomValidity('')
+            }
             if (!form.checkValidity()) {
                 e.preventDefault();
                 e.stopPropagation();
