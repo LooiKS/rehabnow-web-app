@@ -22,6 +22,13 @@ from rest_framework.response import Response
 from django.contrib.auth.decorators import login_required, permission_required
 
 
+def get_all_targets(parts):
+    targets = Target.objects.none()
+    for part in parts:
+        targets |= part.targets.all()
+    return targets
+
+
 @require_POST
 @login_required
 @permission_required("app.web_permission")
@@ -47,8 +54,6 @@ def edit_case(request, patient_id, case_id):
             physiotherapist=request.user.id, patient=patient_id
         )
         case = Case.objects.get(patient_id=patient, id=case_id)
-        parts_id = list(case.parts.values_list("id", flat=True))
-        targets_id = list(case.parts.values_list("targets__id", flat=True))
     except:
         return redirect("patient", patient_id=patient_id)
 
@@ -59,9 +64,7 @@ def edit_case(request, patient_id, case_id):
         form=TargetForm, model=Target, can_delete=True, extra=0
     )
     parts = case.parts.all()
-    targets = Target.objects.none()
-    for part in parts:
-        targets |= part.targets.all()
+    targets = get_all_targets(parts)
 
     if request.method == "POST":
         case_form = CaseForm(request.POST, prefix="case", instance=case)
@@ -106,13 +109,15 @@ def edit_case(request, patient_id, case_id):
         part_forms = PartFormSet(prefix="part", queryset=parts)
         target_forms = TargetFormSet(prefix="target", queryset=targets)
 
-    forms = []
-    for part_form, target_form in map(lambda x, y: (x, y), part_forms, target_forms):
-        if (not part_form.is_bound and not target_form.is_bound) or (
+    forms = [
+        (part_form, target_form)
+        for part_form, target_form in zip(part_forms, target_forms)
+        if (not part_form.is_bound and not target_form.is_bound)
+        or (
             not part_form.cleaned_data.get("DELETE")
             and not target_form.cleaned_data.get("DELETE")
-        ):
-            forms.append((part_form, target_form))
+        )
+    ]
 
     return render(
         request,
@@ -201,13 +206,15 @@ def add_case(request, patient_id):
         part_forms = PartFormSet(prefix="part", initial=[{"patient": patient}])
         target_forms = TargetFormSet(prefix="target")
 
-    forms = []
-    for part_form, target_form in map(lambda x, y: (x, y), part_forms, target_forms):
-        if (not part_form.is_bound and not target_form.is_bound) or (
+    forms = [
+        (part_form, target_form)
+        for part_form, target_form in zip(part_forms, target_forms)
+        if (not part_form.is_bound and not target_form.is_bound)
+        or (
             not part_form.cleaned_data.get("DELETE")
             and not target_form.cleaned_data.get("DELETE")
-        ):
-            forms.append((part_form, target_form))
+        )
+    ]
 
     return render(
         request,

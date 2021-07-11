@@ -69,19 +69,14 @@ def rest_login(request):
     data = request.data
     try:
         user = Patient.objects.get(patient__email=data["email"]).patient
-    except:
-        return Response(
-            {
-                "status": "failed",
-                "errorMessage": "User not found.",
-            }
-        )
-
-    if user.status == "active":
-        user = django_authenticate(
-            request, username=data["email"], password=data["password"]
-        )
-        if user is not None:
+        if user.status != "active":
+            return Response(
+                {
+                    "status": "failed",
+                    "errorMessage": "The account is not activated. Check your email to activate.",
+                }
+            )
+        else:
             token, created = Token.objects.get_or_create(user=user)
             return Response(
                 {
@@ -92,18 +87,10 @@ def rest_login(request):
                     "status": "success",
                 }
             )
-        else:
-            return Response(
-                {
-                    "status": "failed",
-                    "errorMessage": "Wrong credential.",
-                }
-            )
-
-    else:
+    except:
         return Response(
             {
                 "status": "failed",
-                "errorMessage": "The account is not activated. Check your email to activate.",
+                "errorMessage": "Wrong credential.",
             }
         )

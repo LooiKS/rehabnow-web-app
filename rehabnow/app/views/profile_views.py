@@ -85,8 +85,8 @@ class EditProfile(View):
 
 
 @api_view(["GET"])
-@permission_required("app.mobile_permission")
 @permission_classes([IsAuthenticated])
+@permission_required("app.mobile_permission")
 def get_profile(request):
     return Response(UserSerializer(request.user).data)
 

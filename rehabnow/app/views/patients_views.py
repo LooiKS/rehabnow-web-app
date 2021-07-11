@@ -134,7 +134,7 @@ def add_patient(request):
                 "patient-welcome.html",
                 context,
                 "Welcome to RehabNow!",
-                [form.fields["email"]],
+                [patient.email],
             )
             email_service.send_email()
             messages.success(request, "Patient added.")

@@ -143,10 +143,7 @@ class Case(models.Model):
         Patient, related_name="cases", on_delete=models.CASCADE
     )
     created_by = models.CharField(max_length=50)
-    created_dt = models.DateTimeField(
-        # default="",
-        auto_now_add=True
-    )
+    created_dt = models.DateTimeField(auto_now_add=True)
 
 
 class Part(models.Model):

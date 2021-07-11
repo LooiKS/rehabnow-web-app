@@ -109,7 +109,7 @@ def reset_password_api(request):
                 "reset-password.html",
                 context,
                 "RehabNow Password Reset",
-                data["email"],
+                [data["email"]],
             )
             emailService.send_email()
         else:

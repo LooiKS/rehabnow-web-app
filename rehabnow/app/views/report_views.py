@@ -1,10 +1,11 @@
+from django.db.models.query import Prefetch
 from sklearn.linear_model import LinearRegression
 from datetime import timedelta
 import math
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from rehabnow.app.models import Patient, Part
+from rehabnow.app.models import Exercise, Patient, Part
 from rehabnow.app.serializers import ExerciseRecordsSerializer
 from django.contrib.auth.decorators import permission_required
 
@@ -72,15 +73,16 @@ def get_patient_prediction(request, patient_id):
 @permission_required("app.web_permission")
 def get_patient_performance(request, patient_id):
     case_id = request.GET.get("case_id")
+    exercises = Exercise.objects.order_by("created_dt")
     if case_id is not None:
-        parts = Part.objects.filter(
+        parts = Part.objects.prefetch_related(Prefetch("exercises", exercises)).filter(
             case_id__id=case_id,
             case_id__patient_id=patient_id,
             case_id__patient_id__physiotherapist=request.user.id,
             status="Under Treatment",
         )
     else:
-        parts = Part.objects.filter(
+        parts = Part.objects.prefetch_related(Prefetch("exercises", exercises)).filter(
             case_id__patient_id=patient_id,
             case_id__patient_id__physiotherapist=request.user.id,
             status="Under Treatment",
