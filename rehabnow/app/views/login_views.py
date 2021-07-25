@@ -77,20 +77,25 @@ def rest_login(request):
                 }
             )
         else:
-            token, created = Token.objects.get_or_create(user=user)
-            return Response(
-                {
-                    "data": {
-                        "token": token.key,
-                        "user": UserSerializer(user).data,
-                    },
-                    "status": "success",
-                }
+            user = django_authenticate(
+                request, username=data["email"], password=data["password"]
             )
+            if user is not None:
+                token, created = Token.objects.get_or_create(user=user)
+                return Response(
+                    {
+                        "data": {
+                            "token": token.key,
+                            "user": UserSerializer(user).data,
+                        },
+                        "status": "success",
+                    }
+                )
     except:
-        return Response(
-            {
-                "status": "failed",
-                "errorMessage": "Wrong credential.",
-            }
-        )
+        pass
+    return Response(
+        {
+            "status": "failed",
+            "errorMessage": "Wrong credential.",
+        }
+    )
