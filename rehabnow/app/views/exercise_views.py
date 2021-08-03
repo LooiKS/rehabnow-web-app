@@ -122,5 +122,11 @@ def upload_exercise(request):
                 ),
             },
         )
+    else:
+        try:
+            recovery = PredictedRecovery.objects.get(part_id_id=part_id)
+            recovery.delete()
+        except:
+            pass
 
     return Response({"data": {}, "status": status})
