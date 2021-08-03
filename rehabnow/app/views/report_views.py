@@ -99,12 +99,13 @@ def get_patient_category(request):
     recovered = 0
     under_treatment = 0
     no_cases = 0
-    no_under_treatment = False
 
     for patient in patients:
+        no_under_treatment = False
         cases = patient.cases.all()
         if not cases:
             no_cases += 1
+            continue
 
         for case in cases:
             if case.status == "Under Treatment":
