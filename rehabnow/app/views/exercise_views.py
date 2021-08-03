@@ -100,7 +100,7 @@ def upload_exercise(request):
         predict = reg.predict([[x]])
         x = x + 1
 
-    if predict != 0:
+    if predict > 0:
         num = x - len(X)
         if target.frequency == 1:
             pass
