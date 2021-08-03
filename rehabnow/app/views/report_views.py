@@ -28,8 +28,8 @@ def get_patient_prediction(request, patient_id):
         target = part.targets.all()[0]
 
         if len(exercises) > 0:
-            X = list([e.oscillation_num] for e in exercises)
-            y = list([i] for i in range(len(exercises)))
+            y = list([e.oscillation_num] for e in exercises)
+            X = list([i] for i in range(len(exercises)))
             reg = LinearRegression().fit(X, y)
             reg.score(X, y)
 

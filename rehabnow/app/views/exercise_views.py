@@ -89,8 +89,8 @@ def upload_exercise(request):
         .order_by("created_dt")
     )
 
-    X = list(list(e) for e in exercises)
-    y = list([i] for i in range(len(exercises)))
+    y = list(list(e) for e in exercises)
+    X = list([i] for i in range(len(exercises)))
     reg = LinearRegression().fit(X, y)
     reg.score(X, y)
 
