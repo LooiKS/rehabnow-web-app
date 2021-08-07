@@ -24,6 +24,9 @@
                             <img src="{% get_media_prefix %}{{form.instance.photo}}" class="rounded-circle" width="100" id="profile-img" alt="Profile Image" />
                             <input type="file" hidden id="photo" name="photo" />
                         </div>
+                        {% if not form.instance.photo %}
+                        <p class="text-center"><strong>Choose your profile image</strong></p>
+                        {% endif %}
                         {% for error in form.photo.errors %}
                         <div class="text-danger text-center">{{error}}</div>
                         {% endfor %}
