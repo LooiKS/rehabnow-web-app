@@ -32,7 +32,7 @@
                         {% endfor %}
                         <div class="row mt-3">
                             <div class="col-md-4">
-                                <strong>Email Address</strong>
+                                <strong class="required-ast">Email Address</strong>
                             </div>
                             <div class="col-md-6">
                                 <span>{{user.email}}</span>
@@ -41,7 +41,7 @@
                         <hr />
                         <div class="row form-group">
                             <div class="col-md-4 col-form-label">
-                                <strong>First Name</strong>
+                                <strong class="required-ast">First Name</strong>
                             </div>
                             <div class="col-md-6">
                                 <input class="form-control" value="{{ form.first_name.value|default_if_none:'' }}" required type="text" id="first-name" name="first_name" placeholder="Please enter your first name" />
@@ -54,7 +54,7 @@
                         <hr />
                         <div class="row form-group">
                             <div class="col-md-4 col-form-label">
-                                <strong>Last Name</strong>
+                                <strong class="required-ast">Last Name</strong>
                             </div>
                             <div class="col-md-6">
                                 <input class="form-control" value="{{ form.last_name.value|default_if_none:'' }}" required type="text" id="last-name" name="last_name" placeholder="Please enter your last name" />
@@ -67,7 +67,7 @@
                         <hr />
                         <div class="row form-group">
                             <div class="col-md-4 col-form-label">
-                                <strong>IC Num/Passport</strong>
+                                <strong class="required-ast">IC Num/Passport</strong>
                             </div>
                             <div class="col-md-6">
                                 <input class="form-control" value="{{ form.ic_passport.value|default_if_none:'' }}" required type="text" id="ic-num-passport" name="ic_passport" placeholder="Plaese enter your IC number or passport number" />
@@ -80,7 +80,7 @@
                         <hr />
                         <div class="row form-group">
                             <div class="col-md-4 col-form-label">
-                                <strong>Phone Number</strong>
+                                <strong class="required-ast">Phone Number</strong>
                             </div>
                             <div class="col-md-6">
                                 <input class="form-control" value="{{ form.phone_num.value|default_if_none:'' }}" required type="text" id="phone-number" name="phone_num" placeholder="Please enter your phone number" />
@@ -93,7 +93,7 @@
                         <hr />
                         <div class="row form-group">
                             <div class="col-md-4 col-form-label">
-                                <strong>Gender</strong>
+                                <strong class="required-ast">Gender</strong>
                             </div>
                             <div class="col-md-6">
                                 <select class="form-control" id="gender" name="gender" required>
@@ -112,7 +112,7 @@
                         <hr />
                         <div class="row form-group">
                             <div class="col-md-4 col-form-label">
-                                <strong>Date of Birth</strong>
+                                <strong class="required-ast">Date of Birth</strong>
                             </div>
                             <div class="col-md-6">
                                 <input class="form-control" value="{{ form.dob.value }}" type="date" required id="dob" name="dob" />
@@ -125,7 +125,7 @@
                         <hr />
                         <div class="row form-group">
                             <div class="col-md-4 col-form-label">
-                                <strong>Nationality</strong>
+                                <strong class="required-ast">Nationality</strong>
                             </div>
                             <div class="col-md-6">
                                 <select class="form-control" id="nationality" name="nationality" required>
@@ -148,7 +148,7 @@
                         <h5 class="font-weight-bold">Residential Address</h5>
                         <div class="row form-group">
                             <div class="col-md-4 col-form-label">
-                                <strong>Address</strong>
+                                <strong class="required-ast">Address</strong>
                             </div>
                             <div class="col-md-6">
                                 <input class="form-control" id="address" name="address" value="{{ form.address.value|default_if_none:'' }}" required placeholder="Please enter your address" />
@@ -161,7 +161,7 @@
                         <hr />
                         <div class="row form-group">
                             <div class="col-md-4 col-form-label">
-                                <strong>Postcode</strong>
+                                <strong class="required-ast">Postcode</strong>
                             </div>
                             <div class="col-md-6">
                                 <input class="form-control" id="postcode" name="postcode" value="{{ form.postcode.value|default_if_none:'' }}" required placeholder="Please enter your postcode" />
@@ -174,7 +174,7 @@
                         <hr />
                         <div class="row form-group">
                             <div class="col-md-4 col-form-label">
-                                <strong>Country</strong>
+                                <strong class="required-ast">Country</strong>
                             </div>
                             <div class="col-md-6">
                                 <select class="form-control" id="country" name="country" value="Malaysia" required>
@@ -193,7 +193,7 @@
                         <hr />
                         <div class="row form-group">
                             <div class="col-md-4 col-form-label">
-                                <strong>State</strong>
+                                <strong class="required-ast">State</strong>
                             </div>
                             <div class="col-md-6">
                                 <select class="form-control" value="Johor" id="state" name="state" required>
@@ -212,7 +212,7 @@
                         <hr />
                         <div class="row form-group">
                             <div class="col-md-4 col-form-label">
-                                <strong>City</strong>
+                                <strong class="required-ast">City</strong>
                             </div>
                             <div class="col-md-6">
                                 <select class="form-control" id="city" name="city" required>
