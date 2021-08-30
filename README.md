@@ -1,4 +1,4 @@
-# RehabNow Mobile Application
+# RehabNow Web Application
 A Django project for **RehabNow**. RehabNow is a system for the Final Year Project of **Mild-Stroke Patient Rehabilitation Interactive Tool and Analytics**
 
 ## User
