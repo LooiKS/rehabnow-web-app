@@ -22,8 +22,10 @@ The user is the physiotherapist for stroke rehabilitation.
 
 
 ![image](https://user-images.githubusercontent.com/34777473/131370876-c316e382-6820-4550-968d-d9f758639071.png)
+
 *Cases*
 
 
 ![image](https://user-images.githubusercontent.com/34777473/131370911-6007d7f1-4a0f-45f5-ae9d-012033ab6f70.png)
+
 *Exercise Records*
